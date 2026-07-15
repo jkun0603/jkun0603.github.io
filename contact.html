@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="联系我 - 期待与你的交流" />
+  <title>联系 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="fade-in">联系我</h1>
+      <p class="fade-in fade-in-d1">有任何问题或合作意向？欢迎随时联系。</p>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="section contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info fade-in">
+          <h3>保持联系</h3>
+          <p>你可以通过以下方式找到我，或者直接填写右侧的表单。</p>
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-method-icon">✉</div>
+              <div>
+                <div class="contact-method-label">邮箱</div>
+                <div class="contact-method-value">your.email@example.com</div>
+              </div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon">🐙</div>
+              <div>
+                <div class="contact-method-label">GitHub</div>
+                <div class="contact-method-value">github.com/yourname</div>
+              </div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon">𝕏</div>
+              <div>
+                <div class="contact-method-label">Twitter / X</div>
+                <div class="contact-method-value">@yourhandle</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fade-in fade-in-d1">
+          <form class="contact-form" id="contactForm">
+            <div class="form-group">
+              <label for="name">姓名</label>
+              <input type="text" id="name" name="name" required placeholder="你的名字" />
+            </div>
+            <div class="form-group">
+              <label for="email">邮箱</label>
+              <input type="email" id="email" name="email" required placeholder="your@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="message">留言</label>
+              <textarea id="message" name="message" required placeholder="你想说什么..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">发送消息</button>
+          </form>
+          <div class="form-success">
+            <span class="checkmark">✓</span>
+            <h3>消息已发送！</h3>
+            <p>感谢你的联系，我会尽快回复。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

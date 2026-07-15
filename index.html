@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="个人主页 - 分享技术、作品与思考" />
+  <title>个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-bg-gradient"></div>
+      <div class="hero-bg-gradient"></div>
+      <div class="hero-bg-gradient"></div>
+    </div>
+    <div class="container">
+      <div class="hero-content">
+        <span class="greeting fade-in">👋 你好，我是</span>
+        <h1 class="fade-in fade-in-d1">
+          <span class="gradient-text">你的名字</span>
+        </h1>
+        <p class="fade-in fade-in-d2">
+          一个热爱技术与创造的人。专注于构建用户体验优秀的 Web 应用，
+          热衷于探索前沿技术并分享所学。
+        </p>
+        <div class="hero-buttons fade-in fade-in-d3">
+          <a href="/projects.html" class="btn btn-primary">查看作品 →</a>
+          <a href="/about.html" class="btn btn-secondary">关于我</a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse"></div>
+      <span>向下滚动</span>
+    </div>
+  </section>
+
+  <!-- Featured Projects -->
+  <section class="section">
+    <div class="container">
+      <span class="section-label fade-in">精选作品</span>
+      <h2 class="section-title fade-in fade-in-d1">最近项目</h2>
+      <p class="section-subtitle fade-in fade-in-d2">一些我近期完成或者正在进行的项目。</p>
+      <div class="feature-grid" id="featuredProjects"></div>
+    </div>
+  </section>
+
+  <!-- Recent Blog Posts -->
+  <section class="section" style="background:var(--bg-tertiary);">
+    <div class="container">
+      <span class="section-label fade-in">最新文章</span>
+      <h2 class="section-title fade-in fade-in-d1">博客动态</h2>
+      <p class="section-subtitle fade-in fade-in-d2">记录学习过程与日常思考。</p>
+      <div class="feature-grid" id="featuredPosts"></div>
+      <div style="text-align:center;margin-top:32px;" class="fade-in">
+        <a href="/blog.html" class="btn btn-secondary">查看全部文章 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section class="section">
+    <div class="container" style="text-align:center;">
+      <h2 class="section-title fade-in">保持联系</h2>
+      <p class="section-subtitle fade-in fade-in-d1" style="margin:0 auto 32px;">
+        有任何问题或合作意向？欢迎随时联系我。
+      </p>
+      <div class="fade-in fade-in-d2">
+        <a href="/contact.html" class="btn btn-primary">联系我 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+  <script>
+    // Featured projects for homepage
+    document.addEventListener('DOMContentLoaded', () => {
+      const fp = document.getElementById('featuredProjects');
+      if (fp) {
+        const items = [
+          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'] },
+          { emoji: '💡', title: '待添加项目', summary: '下一个精彩项目，准备好展示给世界。', tags: ['待定'] },
+        ];
+        items.forEach((p, i) => {
+          const div = document.createElement('div');
+          div.className = `project-card fade-in fade-in-d${i+2}`;
+          div.innerHTML = `
+            <div class="project-card-image">${p.emoji}</div>
+            <div class="project-card-body">
+              <h3>${p.title}</h3>
+              <p>${p.summary}</p>
+              <div class="project-tags">${p.tags.map(t => `<span class="project-tag">${t}</span>`).join('')}</div>
+            </div>`;
+          fp.appendChild(div);
+        });
+      }
+
+      const fposts = document.getElementById('featuredPosts');
+      if (fposts) {
+        const posts = [
+          { emoji: '🚀', title: '我的第一篇博客文章', date: '2026-07-15', summary: '搭建个人站的过程和心得。', tags: ['随笔'], link: '/blog/getting-started.html' },
+          { emoji: '🎨', title: '理解现代 CSS 布局', date: '2026-07-10', summary: 'Flexbox 和 Grid 布局核心概念。', tags: ['技术'], link: '/blog/css-layout.html' },
+        ];
+        posts.forEach((p, i) => {
+          const div = document.createElement('div');
+          div.className = `blog-card fade-in fade-in-d${i+2}`;
+          div.innerHTML = `
+            <div class="blog-card-image">${p.emoji}</div>
+            <div class="blog-card-body">
+              <div class="blog-card-meta">${p.date}</div>
+              <h3><a href="${p.link}">${p.title}</a></h3>
+              <p>${p.summary}</p>
+              <div class="blog-card-tags">${p.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}</div>
+            </div>`;
+          fposts.appendChild(div);
+        });
+        initScrollAnimations();
+      }
+    });
+  </script>
+</body>
+</html>

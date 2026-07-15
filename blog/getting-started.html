@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="我的第一篇博客文章 - 搭建个人站的过程和心得" />
+  <title>我的第一篇博客文章 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Post Content -->
+  <section class="section">
+    <div class="container">
+      <article class="post-content">
+        <header class="post-header fade-in">
+          <div class="post-meta">📅 2026 年 7 月 15 日 · 📂 随笔</div>
+          <h1>我的第一篇博客文章</h1>
+        </header>
+        <article class="fade-in fade-in-d1">
+          <p>欢迎来到我的个人网站！这是第一篇文章，想分享一下搭建这个站的初衷和过程。</p>
+
+          <h2>为什么搭建个人站？</h2>
+          <p>
+            一直以来都想拥有一个属于自己的网络空间。在这个信息爆炸的时代，
+            社交媒体虽然方便，但总觉得缺少一点「属于自己」的感觉。
+            个人网站就像数字世界中的家——你可以自由地设计它、装饰它，
+            让它完全按照你的想象呈现。
+          </p>
+          <p>
+            这个网站承载着几个目标：
+          </p>
+          <ul>
+            <li><strong>作品集</strong> — 展示我的项目与成果</li>
+            <li><strong>博客</strong> — 记录学习笔记与思考</li>
+            <li><strong>个人品牌</strong> — 塑造专业的线上形象</li>
+          </ul>
+
+          <h2>技术选型</h2>
+          <p>
+            这次选择了最纯粹的方式：原生 HTML + CSS + JavaScript，没有使用任何框架。
+            原因很简单：
+          </p>
+          <ul>
+            <li>加载速度快，不依赖任何构建工具</li>
+            <li>对每个像素都有完全的控制力</li>
+            <li>适合作为长期维护的个人站点</li>
+          </ul>
+          <p>
+            通过 CSS 变量实现了深色/浅色主题切换，使用 Intersection Observer
+            实现了滚动加载动画，整个站点都是响应式设计。
+          </p>
+
+          <pre><code>// 主题切换实现
+function toggleTheme() {
+  const current = document.documentElement
+    .getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement
+    .setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}</code></pre>
+
+          <h2>接下来的计划</h2>
+          <p>
+            这个网站会持续更新。我计划定期发布技术博客文章，
+            不断优化网站的设计与性能。如果你有任何建议或想法，
+            欢迎通过联系页面与我交流。
+          </p>
+          <p>感谢阅读！</p>
+        </article>
+
+        <nav class="post-nav fade-in">
+          <span></span>
+          <a href="/blog.html">← 返回博客列表</a>
+        </nav>
+      </article>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

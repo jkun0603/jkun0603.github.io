@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="关于我 - 个人简介与经历" />
+  <title>关于 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="fade-in">关于我</h1>
+      <p class="fade-in fade-in-d1">了解更多关于我的故事。</p>
+    </div>
+  </section>
+
+  <!-- About Content -->
+  <section class="section">
+    <div class="container">
+      <div class="about-page-content">
+        <aside class="about-sidebar fade-in">
+          <div class="avatar-large">👤</div>
+          <h2>你的名字</h2>
+          <p class="role">开发者 / 设计师</p>
+          <p class="bio-short">
+            热爱技术，喜欢创造有价值的产品。持续学习，乐于分享。
+          </p>
+          <div class="skills-list">
+            <span class="skill-tag">HTML</span>
+            <span class="skill-tag">CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">Vue</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Git</span>
+          </div>
+        </aside>
+
+        <div class="about-main fade-in fade-in-d1">
+          <h3>👋 你好！</h3>
+          <p>
+            我是一名热爱技术的开发者，专注于 Web 开发与用户体验设计。
+            我相信好的代码不仅能解决问题，更能带来愉悦的使用体验。
+          </p>
+          <p>
+            在工作之余，我喜欢学习新技术、写博客分享知识，
+            也会参与一些开源项目。这个个人网站就是我用纯 HTML/CSS/JS 打造的，
+            记录我的成长与思考。
+          </p>
+
+          <h3>📚 经历</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <span class="period">2025 - 至今</span>
+              <h4>前端开发工程师</h4>
+              <p class="org">某互联网公司</p>
+              <p>负责核心产品的前端架构设计与开发。</p>
+            </div>
+            <div class="timeline-item">
+              <span class="period">2023 - 2025</span>
+              <h4>初级开发工程师</h4>
+              <p class="org">某科技公司</p>
+              <p>参与多个 Web 项目的开发与维护。</p>
+            </div>
+            <div class="timeline-item">
+              <span class="period">2019 - 2023</span>
+              <h4>本科</h4>
+              <p class="org">某大学 · 计算机科学与技术</p>
+              <p>打下扎实的计算机基础，培养了编程兴趣。</p>
+            </div>
+          </div>
+
+          <h3>🎯 兴趣方向</h3>
+          <p>
+            前端工程化、UI/UX 设计、性能优化、全栈开发。
+            持续探索如何用技术创造更好的产品。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
