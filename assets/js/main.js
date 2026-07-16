@@ -201,9 +201,136 @@ function initProjects() {
   initScrollAnimations();
 }
 
-/* ===== Init ===== */
+/* ===== Intro Scroll Reveal ===== */
+function initIntroReveal() {
+  const overlay = document.getElementById('intro-overlay');
+  const spacer = document.querySelector('.intro-spacer');
+  if (!overlay || !spacer) return;
+
+  let ticking = false;
+
+  function update() {
+    const scrollY = window.scrollY;
+    const revealPoint = spacer.offsetHeight || window.innerHeight * 0.85;
+
+    // Linear mapping: at scrollY=0 → progress=0, at scrollY=revealPoint → progress=1
+    const rawProgress = Math.min(scrollY / revealPoint, 1);
+
+    // Ease-out quad for smoother feel
+    const progress = rawProgress < 1 ? rawProgress : 1;
+
+    overlay.style.transform = `translateY(-${scrollY}px)`;
+    // Fade out faster so overlay is transparent before reaching hero content
+    overlay.style.opacity = Math.max(0, 1 - progress * 1.4);
+
+    // Once fully hidden, stop painting
+    if (progress >= 1) {
+      overlay.style.visibility = 'hidden';
+    } else {
+      overlay.style.visibility = '';
+    }
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Set initial state
+  update();
+}
+
+/* ===== Variable Proximity for Intro Letters ===== */
+function initVariableProximity() {
+  const letters = document.querySelectorAll('.intro-letter');
+  const overlay = document.getElementById('intro-overlay');
+  if (!letters.length || !overlay) return;
+
+  const radius = 100;
+  const fromWeight = 400;
+  const toWeight = 700;
+  let mouseX = -9999;
+  let mouseY = -9999;
+  let frameId = null;
+
+  function update() {
+    if (overlay.style.visibility === 'hidden') {
+      frameId = null;
+      return;
+    }
+
+    const overlayRect = overlay.getBoundingClientRect();
+
+    letters.forEach(letter => {
+      const rect = letter.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2 - overlayRect.left;
+      const centerY = rect.top + rect.height / 2 - overlayRect.top;
+
+      const dx = mouseX - centerX;
+      const dy = mouseY - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist >= radius) {
+        letter.style.fontVariationSettings = `'wght' ${fromWeight}`;
+        return;
+      }
+
+      const norm = 1 - dist / radius;
+      const falloff = 1 - Math.pow(1 - norm, 2); // ease-out quad
+      const weight = Math.round(fromWeight + (toWeight - fromWeight) * falloff);
+      letter.style.fontVariationSettings = `'wght' ${weight}`;
+    });
+
+    frameId = null;
+  }
+
+  function startLoop() {
+    if (frameId) return;
+    frameId = requestAnimationFrame(function tick() {
+      update();
+      frameId = requestAnimationFrame(tick);
+    });
+  }
+
+  function stopLoop() {
+    if (frameId) {
+      cancelAnimationFrame(frameId);
+      frameId = null;
+    }
+  }
+
+  function handleMove(clientX, clientY) {
+    mouseX = clientX;
+    mouseY = clientY;
+  }
+
+  window.addEventListener('mousemove', e => {
+    handleMove(e.clientX, e.clientY);
+    if (!frameId) startLoop();
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
+    if (!frameId) startLoop();
+  }, { passive: true });
+
+  // Stop loop when overlay is hidden (scrolled past)
+  const scrollObserver = new MutationObserver(() => {
+    if (overlay.style.visibility === 'hidden') {
+      stopLoop();
+    }
+  });
+  scrollObserver.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+}
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initIntroReveal();
+  initVariableProximity();
   initMobileMenu();
   initActiveNav();
   initScrollAnimations();

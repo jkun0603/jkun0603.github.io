@@ -123,6 +123,94 @@ img {
   line-height: 1.7;
 }
 
+/* ===== Intro Overlay ===== */
+#intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 99999;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.intro-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: -5vh;
+}
+
+.intro-dog svg {
+  width: clamp(120px, 18vw, 200px);
+  height: auto;
+  overflow: visible;
+}
+
+.intro-letters {
+  display: flex;
+  gap: clamp(8px, 2.5vw, 28px);
+  margin-top: 8px;
+}
+
+.intro-letter {
+  font-family: 'Inter', var(--font-serif);
+  font-size: clamp(4rem, 22vw, 12rem);
+  font-weight: 400;
+  font-variation-settings: 'wght' 400;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color 0.3s;
+  animation: letterIn 0.8s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.15s + 0.2s);
+}
+
+@keyframes letterIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-letter:nth-child(2) {
+  --i: 1;
+}
+
+.intro-letter:nth-child(3) {
+  --i: 2;
+}
+
+.intro-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 32px;
+  animation: hintPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.35; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(6px); }
+}
+
+/* Spacer: creates scrollable area to reveal content */
+.intro-spacer {
+  height: 85vh;
+  pointer-events: none;
+}
+
 /* ===== Navbar ===== */
 .navbar {
   position: fixed;
@@ -1143,5 +1231,22 @@ img {
 
   .section-title {
     font-size: 1.3rem;
+  }
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  #intro-overlay {
+    display: none;
+  }
+  .intro-spacer {
+    height: 0;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
