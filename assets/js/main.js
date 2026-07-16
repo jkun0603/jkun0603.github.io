@@ -226,9 +226,9 @@ function initIntroReveal() {
     // Once fully hidden, stop painting
     if (progress >= 1) {
       overlay.style.visibility = 'hidden';
-      if (!window._fallingTextStarted) {
-        window._fallingTextStarted = true;
-        initFallingText('.hero-content p');
+      if (!window._fallingTagsStarted) {
+        window._fallingTagsStarted = true;
+        initFallingTags();
       }
     } else {
       overlay.style.visibility = '';
@@ -570,83 +570,91 @@ function initIntroWheel() {
   startLoop();
 }
 
-/* ===== Falling Text (Matter.js physics) ===== */
-function initFallingText(selector) {
-  const el = document.querySelector(selector);
-  if (!el || el._ftInited) return;
-  el._ftInited = true;
+/* ===== Falling Tags (Matter.js physics) ===== */
+function initFallingTags() {
+  const container = document.getElementById('heroTags');
+  if (!container || container._tagsInited) return;
+  container._tagsInited = true;
 
-  const text = el.textContent.trim();
-  if (!text) return;
-  el.dataset.origHTML = el.innerHTML;
+  const tags = [
+    '前端开发', 'React', 'TypeScript', 'JavaScript', 'CSS3',
+    'HTML5', 'Vue.js', 'Node.js', 'UI/UX', '响应式设计',
+    'WebGL', '动画', 'Git', 'Figma', '性能优化'
+  ];
 
-  const words = text.split(/\s+/);
   const { Engine, Render, World, Bodies, Runner, Mouse, MouseConstraint, Body } = Matter;
 
-  // Turn container into a positioned holder
-  el.style.position = 'relative';
-  el.style.overflow = 'hidden';
-  el.style.marginBottom = '0';
+  // Sizes
+  const hero = container.parentElement;
+  const heroRect = hero.getBoundingClientRect();
+  const areaW = heroRect.width;
+  const areaH = heroRect.height;
 
-  // 1) Measure each word's natural inline position
-  el.innerHTML = words.map((w, i) =>
-    `<span class="ft-word">${w}${i < words.length - 1 ? ' ' : ''}</span>`
-  ).join('');
+  container.style.cssText = 'position:absolute;inset:0;z-index:2;pointer-events:none;';
 
-  const spans = [...el.querySelectorAll('.ft-word')];
-  const contRect = el.getBoundingClientRect();
-  const w = contRect.width || 200;
-  const origH = contRect.height;
-  const canvasH = origH + 60;
-
-  const pos = spans.map(s => {
-    const r = s.getBoundingClientRect();
-    return { x: r.left - contRect.left + r.width / 2, y: r.top - contRect.top + r.height / 2, w: r.width, h: r.height };
-  });
-
-  // 2) Absolute-position them at those spots
-  el.style.height = origH + 'px';
-  spans.forEach((s, i) => {
-    s.style.cssText = `
-      position:absolute; left:${pos[i].x}px; top:${pos[i].y}px;
+  // Create tag elements
+  const tagEls = tags.map(text => {
+    const el = document.createElement('span');
+    el.textContent = text;
+    el.style.cssText = `
+      position:absolute; left:0; top:0;
+      padding:6px 16px;
+      background:var(--accent-light, rgba(138,158,158,0.15));
+      color:var(--accent, #7A8E8E);
+      border:1px solid var(--border-strong, #C5C2B5);
+      border-radius:20px;
+      font-size:0.82rem; font-weight:500;
+      white-space:nowrap;
       transform:translate(-50%,-50%);
-      white-space:nowrap; pointer-events:none;
-      font:inherit; color:inherit;
+      pointer-events:auto;
+      cursor:grab;
+      user-select:none;
+      transition:background 0.2s, color 0.2s, border-color 0.2s;
     `;
+    container.appendChild(el);
+    return el;
   });
 
-  // 3) Physics engine
+  // Engine — gentle gravity so they drift down slowly
   const engine = Engine.create();
-  engine.world.gravity.y = 1.2;
+  engine.world.gravity.y = 0.6;
 
+  // Canvas for mouse interaction (invisible)
   const render = Render.create({
-    element: el, engine,
-    options: { width: w, height: canvasH, background: 'transparent', wireframes: false }
+    element: container, engine,
+    options: { width: areaW, height: areaH, background: 'transparent', wireframes: false }
   });
-  render.canvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:auto;';
+  render.canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
 
-  // Walls
+  // Walls around the hero
   const wallOpts = { isStatic: true, render: { fillStyle: 'transparent' } };
+  const pad = 40;
+  const wallThick = 60;
   World.add(engine.world, [
-    Bodies.rectangle(w / 2, canvasH + 25, w, 50, wallOpts),
-    Bodies.rectangle(-25, canvasH / 2, 50, canvasH, wallOpts),
-    Bodies.rectangle(w + 25, canvasH / 2, 50, canvasH, wallOpts),
+    Bodies.rectangle(areaW / 2, areaH + pad, areaW + 100, wallThick, wallOpts),
+    Bodies.rectangle(-pad, areaH / 2, wallThick, areaH + 100, wallOpts),
+    Bodies.rectangle(areaW + pad, areaH / 2, wallThick, areaH + 100, wallOpts),
   ]);
 
-  // Word bodies
-  const bodyMap = pos.map(p => {
-    const body = Bodies.rectangle(p.x, p.y, Math.max(p.w, 10), Math.max(p.h, 10), {
+  // Create bodies for each tag, start from random positions at the top
+  const bodyMap = tags.map((_, i) => {
+    const x = 80 + Math.random() * (areaW - 160);
+    const y = -40 - Math.random() * 120 - i * 10; // staggered above viewport
+    const body = Bodies.rectangle(x, y, 100, 32, {
       render: { fillStyle: 'transparent' },
-      restitution: 0.7, frictionAir: 0.015, friction: 0.2
+      restitution: 0.5,
+      frictionAir: 0.02,
+      friction: 0.3,
+      density: 0.002,
     });
-    Body.setVelocity(body, { x: (Math.random() - 0.5) * 4, y: (Math.random() - 0.5) * 1 });
-    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.06);
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.05);
     return body;
   });
 
-  const mouse = Mouse.create(render.canvas);
+  // Mouse constraint for dragging
+  const mouse = Mouse.create(container);
   const mouseConstraint = MouseConstraint.create(engine, {
-    mouse, constraint: { stiffness: 0.2, render: { visible: false } }
+    mouse, constraint: { stiffness: 0.08, render: { visible: false }, damping: 0.3 }
   });
   render.mouse = mouse;
 
@@ -656,19 +664,29 @@ function initFallingText(selector) {
   Runner.run(runner, engine);
   Render.run(render);
 
-  // 4) Sync DOM positions
+  // Sync DOM positions
   let running = true;
   (function sync() {
     if (!running) return;
     bodyMap.forEach((body, i) => {
-      spans[i].style.left = body.position.x + 'px';
-      spans[i].style.top = body.position.y + 'px';
-      spans[i].style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
+      const el = tagEls[i];
+      const x = body.position.x;
+      const y = body.position.y;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
+
+      // Clamp within area
+      const r = el.getBoundingClientRect();
+      const halfW = r.width / 2;
+      const halfH = r.height / 2;
+      if (x - halfW < 5) Body.setPosition(body, { x: 5 + halfW, y });
+      if (x + halfW > areaW - 5) Body.setPosition(body, { x: areaW - 5 - halfW, y });
     });
     requestAnimationFrame(sync);
   })();
 
-  el._ftCleanup = () => {
+  container._tagsCleanup = () => {
     running = false;
     Render.stop(render);
     Runner.stop(runner);
