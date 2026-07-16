@@ -147,6 +147,8 @@ img {
   justify-content: center;
   pointer-events: none;
   will-change: transform, opacity;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
 }
 
 @media (min-width: 768px) {
