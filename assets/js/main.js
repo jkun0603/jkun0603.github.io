@@ -566,6 +566,28 @@ function initIntroWheel() {
   startLoop();
 }
 
+/* ===== Tilted Cards (3D hover) ===== */
+function initTiltedCards() {
+  const cards = document.querySelectorAll('.project-card, .blog-card');
+
+  cards.forEach((card) => {
+    if (card.dataset.tiltInited) return;
+    card.dataset.tiltInited = '1';
+
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const ry = ((e.clientX - r.left) / r.width - 0.5) * 2 * 10;
+      const rx = ((e.clientY - r.top) / r.height - 0.5) * -2 * 10;
+      card.style.transition = 'none';
+      card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.04)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transition = '';
+      card.style.transform = '';
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initIntroReveal();
@@ -578,4 +600,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initBlogList();
   initProjects();
+  initTiltedCards();
 });
