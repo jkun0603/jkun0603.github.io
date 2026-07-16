@@ -582,7 +582,7 @@ function initFallingTags() {
     'WebGL', '动画', 'Git', 'Figma', '性能优化'
   ];
 
-  const { Engine, Render, World, Bodies, Runner, Mouse, MouseConstraint, Body } = Matter;
+  const { Engine, Render, World, Bodies, Runner, Body, Query } = Matter;
 
   // Sizes
   const hero = container.parentElement;
@@ -651,18 +651,40 @@ function initFallingTags() {
     return body;
   });
 
-  // Mouse constraint — responsive
-  const mouse = Mouse.create(container);
-  // Unlock wheel scrolling (Matter.js blocks it by default)
-  container.removeEventListener('wheel', mouse.mousewheel);
-  container.removeEventListener('DOMMouseScroll', mouse.mousewheel);
-  const mouseConstraint = MouseConstraint.create(engine, {
-    mouse,
-    constraint: { stiffness: 0.2, render: { visible: false }, damping: 0.1 }
-  });
-  render.mouse = mouse;
+  // Custom drag — no Mouse/MouseConstraint (avoids wheel blocking & lag)
+  let draggedBody = null;
+  let dragOffset = { x: 0, y: 0 };
 
-  World.add(engine.world, [mouseConstraint, ...bodyMap]);
+  container.addEventListener('mousedown', (e) => {
+    const contRect = container.getBoundingClientRect();
+    const px = e.clientX - contRect.left;
+    const py = e.clientY - contRect.top;
+    const hit = Query.point(bodyMap, { x: px, y: py });
+    if (hit.length) {
+      draggedBody = hit[0];
+      dragOffset.x = draggedBody.position.x - px;
+      dragOffset.y = draggedBody.position.y - py;
+      Body.setStatic(draggedBody, true);
+    }
+  });
+
+  container.addEventListener('mousemove', (e) => {
+    if (!draggedBody) return;
+    const contRect = container.getBoundingClientRect();
+    Body.setPosition(draggedBody, {
+      x: e.clientX - contRect.left + dragOffset.x,
+      y: e.clientY - contRect.top + dragOffset.y
+    });
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (draggedBody) {
+      Body.setStatic(draggedBody, false);
+      draggedBody = null;
+    }
+  });
+
+  World.add(engine.world, [...bodyMap]);
 
   const runner = Runner.create();
   Runner.run(runner, engine);
