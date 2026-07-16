@@ -537,12 +537,12 @@ img {
   margin-bottom: 24px;
 }
 
-.hero-deco-img {
+.hero-deco-img {/*麻衣位置*/
   position: absolute;
-  right: -40px;
+  right: -300px;
   top: 50%;
   transform: translateY(-50%);
-  height: 420px;
+  height: 710px;
   width: auto;
   object-fit: contain;
   border-radius: 4px;
