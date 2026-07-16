@@ -226,6 +226,10 @@ function initIntroReveal() {
     // Once fully hidden, stop painting
     if (progress >= 1) {
       overlay.style.visibility = 'hidden';
+      if (!window._fallingTextStarted) {
+        window._fallingTextStarted = true;
+        initFallingText('.hero-content p');
+      }
     } else {
       overlay.style.visibility = '';
     }
@@ -564,6 +568,114 @@ function initIntroWheel() {
 
   // Initial layout
   startLoop();
+}
+
+/* ===== Falling Text (Matter.js physics) ===== */
+function initFallingText(selector) {
+  const el = document.querySelector(selector);
+  if (!el || el._ftInited) return;
+  el._ftInited = true;
+
+  const text = el.textContent.trim();
+  if (!text) return;
+  el.dataset.origHTML = el.innerHTML;
+
+  const words = text.split(/\s+/);
+  const { Engine, Render, World, Bodies, Runner, Mouse, MouseConstraint, Body } = Matter;
+
+  // Turn container into a positioned holder
+  el.style.position = 'relative';
+  el.style.overflow = 'hidden';
+  el.style.marginBottom = '0';
+
+  // 1) Measure each word's natural inline position
+  el.innerHTML = words.map((w, i) =>
+    `<span class="ft-word">${w}${i < words.length - 1 ? ' ' : ''}</span>`
+  ).join('');
+
+  const spans = [...el.querySelectorAll('.ft-word')];
+  const contRect = el.getBoundingClientRect();
+  const w = contRect.width || 200;
+  const origH = contRect.height;
+  const canvasH = origH + 60;
+
+  const pos = spans.map(s => {
+    const r = s.getBoundingClientRect();
+    return { x: r.left - contRect.left + r.width / 2, y: r.top - contRect.top + r.height / 2, w: r.width, h: r.height };
+  });
+
+  // 2) Absolute-position them at those spots
+  el.style.height = origH + 'px';
+  spans.forEach((s, i) => {
+    s.style.cssText = `
+      position:absolute; left:${pos[i].x}px; top:${pos[i].y}px;
+      transform:translate(-50%,-50%);
+      white-space:nowrap; pointer-events:none;
+      font:inherit; color:inherit;
+    `;
+  });
+
+  // 3) Physics engine
+  const engine = Engine.create();
+  engine.world.gravity.y = 1.2;
+
+  const render = Render.create({
+    element: el, engine,
+    options: { width: w, height: canvasH, background: 'transparent', wireframes: false }
+  });
+  render.canvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:auto;';
+
+  // Walls
+  const wallOpts = { isStatic: true, render: { fillStyle: 'transparent' } };
+  World.add(engine.world, [
+    Bodies.rectangle(w / 2, canvasH + 25, w, 50, wallOpts),
+    Bodies.rectangle(-25, canvasH / 2, 50, canvasH, wallOpts),
+    Bodies.rectangle(w + 25, canvasH / 2, 50, canvasH, wallOpts),
+  ]);
+
+  // Word bodies
+  const bodyMap = pos.map(p => {
+    const body = Bodies.rectangle(p.x, p.y, Math.max(p.w, 10), Math.max(p.h, 10), {
+      render: { fillStyle: 'transparent' },
+      restitution: 0.7, frictionAir: 0.015, friction: 0.2
+    });
+    Body.setVelocity(body, { x: (Math.random() - 0.5) * 4, y: (Math.random() - 0.5) * 1 });
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.06);
+    return body;
+  });
+
+  const mouse = Mouse.create(render.canvas);
+  const mouseConstraint = MouseConstraint.create(engine, {
+    mouse, constraint: { stiffness: 0.2, render: { visible: false } }
+  });
+  render.mouse = mouse;
+
+  World.add(engine.world, [mouseConstraint, ...bodyMap]);
+
+  const runner = Runner.create();
+  Runner.run(runner, engine);
+  Render.run(render);
+
+  // 4) Sync DOM positions
+  let running = true;
+  (function sync() {
+    if (!running) return;
+    bodyMap.forEach((body, i) => {
+      spans[i].style.left = body.position.x + 'px';
+      spans[i].style.top = body.position.y + 'px';
+      spans[i].style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
+    });
+    requestAnimationFrame(sync);
+  })();
+
+  el._ftCleanup = () => {
+    running = false;
+    Render.stop(render);
+    Runner.stop(runner);
+    render.canvas.parentNode?.removeChild(render.canvas);
+    World.clear(engine.world);
+    Engine.clear(engine);
+  };
 }
 
 /* ===== Tilted Cards (3D hover) ===== */
