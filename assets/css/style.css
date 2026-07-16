@@ -138,7 +138,7 @@ img {
       rgba(0, 0, 0, 0.08) 50%,
       rgba(0, 0, 0, 0.30) 100%
     ),
-    url('/assets/wallpaper-mobile.jpg');
+    url('/assets/wallpaper.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -149,18 +149,6 @@ img {
   will-change: transform, opacity;
   mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
-}
-
-@media (min-width: 768px) {
-  #intro-overlay {
-    background-image:
-      linear-gradient(
-        rgba(0, 0, 0, 0.20) 0%,
-        rgba(0, 0, 0, 0.08) 50%,
-        rgba(0, 0, 0, 0.30) 100%
-      ),
-      url('/assets/wallpaper.jpg');
-  }
 }
 
 .intro-strip {
