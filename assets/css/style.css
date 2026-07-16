@@ -504,7 +504,7 @@ img {
   align-items: center;
   position: relative;
   padding-top: var(--nav-height);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .hero .container {

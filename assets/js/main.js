@@ -590,7 +590,7 @@ function initFallingTags() {
   const areaW = heroRect.width;
   const areaH = heroRect.height;
 
-  container.style.cssText = 'position:absolute;inset:0;z-index:2;pointer-events:none;';
+  container.style.cssText = 'position:absolute;inset:0;z-index:2;overflow:hidden;';
 
   // Create tag elements
   const tagEls = tags.map(text => {
@@ -609,17 +609,17 @@ function initFallingTags() {
       pointer-events:auto;
       cursor:grab;
       user-select:none;
-      transition:background 0.2s, color 0.2s, border-color 0.2s;
+      will-change:transform;
     `;
     container.appendChild(el);
     return el;
   });
 
-  // Engine — gentle gravity so they drift down slowly
+  // Engine — gentle gravity
   const engine = Engine.create();
   engine.world.gravity.y = 0.6;
 
-  // Canvas for mouse interaction (invisible)
+  // Invisible canvas (needed for MouseConstraint hit detection)
   const render = Render.create({
     element: container, engine,
     options: { width: areaW, height: areaH, background: 'transparent', wireframes: false }
@@ -632,29 +632,30 @@ function initFallingTags() {
   const wallThick = 60;
   World.add(engine.world, [
     Bodies.rectangle(areaW / 2, areaH + pad, areaW + 100, wallThick, wallOpts),
-    Bodies.rectangle(-pad, areaH / 2, wallThick, areaH + 100, wallOpts),
-    Bodies.rectangle(areaW + pad, areaH / 2, wallThick, areaH + 100, wallOpts),
+    Bodies.rectangle(0, areaH / 2, wallThick, areaH + 100, wallOpts),
+    Bodies.rectangle(areaW, areaH / 2, wallThick, areaH + 100, wallOpts),
   ]);
 
-  // Create bodies for each tag, start from random positions at the top
+  // Create bodies for each tag, starting from above viewport
   const bodyMap = tags.map((_, i) => {
     const x = 80 + Math.random() * (areaW - 160);
-    const y = -40 - Math.random() * 120 - i * 10; // staggered above viewport
+    const y = -40 - Math.random() * 120 - i * 10;
     const body = Bodies.rectangle(x, y, 100, 32, {
       render: { fillStyle: 'transparent' },
       restitution: 0.5,
-      frictionAir: 0.02,
+      frictionAir: 0.03,
       friction: 0.3,
-      density: 0.002,
+      density: 0.003,
     });
-    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.05);
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.04);
     return body;
   });
 
-  // Mouse constraint for dragging
+  // Mouse constraint — responsive
   const mouse = Mouse.create(container);
   const mouseConstraint = MouseConstraint.create(engine, {
-    mouse, constraint: { stiffness: 0.08, render: { visible: false }, damping: 0.3 }
+    mouse,
+    constraint: { stiffness: 0.2, render: { visible: false }, damping: 0.1 }
   });
   render.mouse = mouse;
 
@@ -662,33 +663,21 @@ function initFallingTags() {
 
   const runner = Runner.create();
   Runner.run(runner, engine);
-  Render.run(render);
 
-  // Sync DOM positions
+  // Sync DOM positions — no layout reads, just writes
   let running = true;
   (function sync() {
     if (!running) return;
     bodyMap.forEach((body, i) => {
-      const el = tagEls[i];
-      const x = body.position.x;
-      const y = body.position.y;
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
-      el.style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
-
-      // Clamp within area
-      const r = el.getBoundingClientRect();
-      const halfW = r.width / 2;
-      const halfH = r.height / 2;
-      if (x - halfW < 5) Body.setPosition(body, { x: 5 + halfW, y });
-      if (x + halfW > areaW - 5) Body.setPosition(body, { x: areaW - 5 - halfW, y });
+      tagEls[i].style.left = body.position.x + 'px';
+      tagEls[i].style.top = body.position.y + 'px';
+      tagEls[i].style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
     });
     requestAnimationFrame(sync);
   })();
 
   container._tagsCleanup = () => {
     running = false;
-    Render.stop(render);
     Runner.stop(runner);
     render.canvas.parentNode?.removeChild(render.canvas);
     World.clear(engine.world);
