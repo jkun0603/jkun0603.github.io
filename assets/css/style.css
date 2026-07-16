@@ -280,6 +280,49 @@ img {
   overflow: visible;
 }
 
+/* ===== Intro Wheel (left-side curved picker) 开场屏左边轮===== */
+.intro-wheel {
+  position: absolute;
+  left: clamp(12px, 3vw, 32px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: auto;
+  height: 60vh;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.intro-wheel__item {
+  font-family: 'Inter', var(--font-serif);
+  font-size: clamp(0.65rem, 1.6vw, 2rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  padding: 2px 0;
+  cursor: pointer;
+  transition: color 0.3s;
+  transform-origin: left center;
+  will-change: transform, opacity, filter;
+}
+
+.intro-wheel__item.--sel {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 600px) {
+  .intro-wheel {
+    display: none;
+  }
+}
+
 .intro-letters {
   display: flex;
   gap: clamp(4px, 1.5vw, 16px);

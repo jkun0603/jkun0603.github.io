@@ -443,10 +443,134 @@ function initIntroStrip() {
   });
 }
 
+/* ===== Intro Wheel (left-side curved picker) 开场屏左边轮===== */
+function initIntroWheel() {
+  const container = document.querySelector('.intro-wheel');
+  if (!container) return;
+
+  const labels = [
+    '个人资料', '博客', '作品集', '音乐',
+    '风景', '联系方式', '日记', '健身'
+  ];
+
+  const state = {
+    selected: 0,
+    target: 0,
+    rafId: null,
+    lastTime: 0,
+    dragging: false,
+    dragStart: 0,
+    dragStartY: 0,
+    rowH: 0,
+  };
+
+  // Create items
+  const items = labels.map((text, i) => {
+    const el = document.createElement('div');
+    el.className = 'intro-wheel__item';
+    el.textContent = text;
+    container.appendChild(el);
+    return el;
+  });
+
+  function layout(now) {
+    const dt = Math.min((now - state.lastTime) / 1000, 0.05);
+    state.lastTime = now;
+
+    // Smooth toward target
+    const tau = 0.15; // seconds
+    const k = 1 - Math.exp(-dt / tau);
+    state.selected += (state.target - state.selected) * k;
+    if (Math.abs(state.target - state.selected) < 0.001) state.selected = state.target;
+
+    const n = items.length;
+    const mid = n / 2;
+    const baseH = items[0]?.offsetHeight || 24;
+    const rowH = baseH * 1.6;
+    state.rowH = rowH;
+    const tiltAmt = 0.35; // radians curve
+    const maxDist = n;
+
+    for (let i = 0; i < n; i++) {
+      const d = i - state.selected;
+      const dist = Math.abs(d);
+      const ang = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, d * 0.12));
+
+      const x = -(1 - Math.cos(ang)) * 40;
+      const y = d * rowH;
+      const rot = -ang * 18;
+      const opacity = Math.max(0.08, 1 - dist * 0.18);
+      const blurPx = Math.min(3, dist * 0.5);
+
+      items[i].style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
+      items[i].style.opacity = opacity.toFixed(3);
+      items[i].style.filter = blurPx > 0.01 ? `blur(${blurPx.toFixed(2)}px)` : 'none';
+      items[i].classList.toggle('--sel', Math.abs(d) < 0.5);
+    }
+
+    state.rafId = null;
+  }
+
+  function startLoop() {
+    if (state.rafId) return;
+    state.lastTime = performance.now();
+    function tick(now) {
+      layout(now);
+      state.rafId = requestAnimationFrame(tick);
+    }
+    state.rafId = requestAnimationFrame(tick);
+  }
+
+  function snap() {
+    state.target = Math.round(state.target);
+    state.selected = state.target;
+    if (!state.rafId) startLoop();
+  }
+
+  // Wheel scroll
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    state.target = Math.max(0, Math.min(labels.length - 1, state.target + dir));
+    if (!state.rafId) startLoop();
+  }, { passive: false });
+
+  // Pointer drag
+  container.addEventListener('pointerdown', (e) => {
+    state.dragging = true;
+    state.dragStartY = e.clientY;
+    state.dragStart = state.target;
+    container.setPointerCapture(e.pointerId);
+  });
+
+  container.addEventListener('pointermove', (e) => {
+    if (!state.dragging) return;
+    const dy = e.clientY - state.dragStartY;
+    const rowH = state.rowH || 28;
+    const delta = -dy / rowH;
+    state.target = Math.max(0, Math.min(labels.length - 1, state.dragStart + delta));
+    if (!state.rafId) startLoop();
+  });
+
+  container.addEventListener('pointerup', () => {
+    state.dragging = false;
+    snap();
+  });
+
+  container.addEventListener('pointercancel', () => {
+    state.dragging = false;
+    snap();
+  });
+
+  // Initial layout
+  startLoop();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initIntroReveal();
   initIntroStrip();
+  initIntroWheel();
   initVariableProximity();
   initMobileMenu();
   initActiveNav();
