@@ -632,10 +632,11 @@ function initFallingTags() {
   const wallOpts = { isStatic: true, render: { fillStyle: 'transparent' } };
   const pad = 40;
   const wallThick = 60;
+  const floorY = areaH * 0.72;
   World.add(engine.world, [
-    Bodies.rectangle(areaW / 2, areaH + pad, areaW + 100, wallThick, wallOpts),
-    Bodies.rectangle(0, areaH / 2, wallThick, areaH + 100, wallOpts),
-    Bodies.rectangle(areaW, areaH / 2, wallThick, areaH + 100, wallOpts),
+    Bodies.rectangle(areaW / 2, floorY, areaW + 100, wallThick, wallOpts),
+    Bodies.rectangle(0, floorY / 2, wallThick, floorY + 100, wallOpts),
+    Bodies.rectangle(areaW, floorY / 2, wallThick, floorY + 100, wallOpts),
   ]);
 
   // Create bodies for each tag, starting from above viewport
