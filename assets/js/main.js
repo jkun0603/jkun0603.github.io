@@ -632,7 +632,7 @@ function initFallingTags() {
   const wallOpts = { isStatic: true, render: { fillStyle: 'transparent' } };
   const pad = 40;
   const wallThick = 60;
-  const floorY = areaH * 0.72;
+  const floorY = areaH * 0.90;
   World.add(engine.world, [
     Bodies.rectangle(areaW / 2, floorY, areaW + 100, wallThick, wallOpts),
     Bodies.rectangle(0, floorY / 2, wallThick, floorY + 100, wallOpts),
