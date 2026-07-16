@@ -217,6 +217,7 @@ function initGalaxy() {
   const geometry = new Triangle(gl);
   const mesh = new Mesh(gl, { geometry, program });
 
+  container.appendChild(gl.canvas);
   resize();
 
   // Mouse tracking
