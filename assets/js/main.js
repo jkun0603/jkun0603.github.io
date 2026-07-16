@@ -327,9 +327,126 @@ function initVariableProximity() {
   });
   scrollObserver.observe(overlay, { attributes: true, attributeFilter: ['style'] });
 }
+/* ===== Intro Scrolling Strip ===== */
+function initIntroStrip() {
+  const container = document.querySelector('.intro-strip');
+  if (!container) return;
+
+  // 在这里增减图标和链接
+  const items = [
+    { label: 'GitHub', url: 'https://github.com', icon: 'github' },
+    { label: 'HTML5', url: 'https://html.spec.whatwg.org', icon: 'html5' },
+    { label: 'CSS3', url: 'https://www.w3.org/Style/CSS/', icon: 'css3' },
+    { label: 'JavaScript', url: 'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript', icon: 'javascript' },
+    { label: 'React', url: 'https://react.dev', icon: 'react' },
+    { label: 'Node.js', url: 'https://nodejs.org', icon: 'nodedotjs' },
+    { label: 'TypeScript', url: 'https://www.typescriptlang.org', icon: 'typescript' },
+    { label: 'VS Code', url: 'https://code.visualstudio.com', icon: 'visualstudiocode' },
+    { label: 'Figma', url: 'https://www.figma.com', icon: 'figma' },
+    { label: 'Git', url: 'https://git-scm.com', icon: 'git' },
+  ];
+
+  const GAP = 48;
+  const SPEED = 0.6;
+  const iconSrc = name => `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${name}.svg`;
+
+  const track = document.createElement('div');
+  track.className = 'strip-track';
+  container.appendChild(track);
+
+  let setWidth = 0; // 一组完整内容的宽度
+
+  function buildItems() {
+    track.innerHTML = '';
+    setWidth = 0;
+    const containerW = container.clientWidth || 800;
+
+    // 先测量单个 item 宽度
+    const temp = document.createElement('div');
+    temp.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;display:flex;gap:48px;align-items:center;';
+    const tempItems = items.map(item => {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.target = '_blank';
+      a.rel = 'noreferrer noopener';
+      a.className = 'strip-item';
+      a.innerHTML = `
+        <img src="${iconSrc(item.icon)}" alt="${item.label}" width="18" height="18" onerror="this.style.display='none'">
+        <span>${item.label}</span>
+      `;
+      temp.appendChild(a);
+      return a;
+    });
+    document.body.appendChild(temp);
+    const widths = tempItems.map(el => el.offsetWidth + GAP);
+    setWidth = widths.reduce((s, w) => s + w, 0);
+    document.body.removeChild(temp);
+
+    // 填充到至少 3 倍容器宽度，确保无缝循环
+    const copies = Math.ceil((containerW * 3) / setWidth) + 1;
+    for (let c = 0; c < copies; c++) {
+      for (let i = 0; i < items.length; i++) {
+        const a = document.createElement('a');
+        a.href = items[i].url;
+        a.target = '_blank';
+        a.rel = 'noreferrer noopener';
+        a.className = 'strip-item';
+        a.innerHTML = `
+          <img src="${iconSrc(items[i].icon)}" alt="${items[i].label}" width="18" height="18" onerror="this.style.display='none'">
+          <span>${items[i].label}</span>
+        `;
+        track.appendChild(a);
+      }
+    }
+  }
+
+  buildItems();
+
+  let offset = 0;
+  let rafId;
+  let lastTime = 0;
+  const overlay = document.getElementById('intro-overlay');
+
+  function loop(time) {
+    if (!rafId) return; // stopped
+
+    if (overlay && overlay.style.visibility === 'hidden') {
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
+
+    if (!lastTime) lastTime = time;
+    const dt = Math.min(time - lastTime, 50);
+    lastTime = time;
+
+    offset += SPEED * (dt / 16.67);
+
+    // 滚完一组宽度后，直接减去一组宽度，视觉无跳跃
+    if (setWidth > 0 && offset >= setWidth) {
+      offset -= setWidth;
+    }
+
+    track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  rafId = requestAnimationFrame(loop);
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      buildItems();
+      offset = 0;
+      lastTime = 0;
+    }, 200);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initIntroReveal();
+  initIntroStrip();
   initVariableProximity();
   initMobileMenu();
   initActiveNav();
