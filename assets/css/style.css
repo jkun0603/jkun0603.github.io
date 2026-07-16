@@ -163,13 +163,14 @@ img {
   }
 }
 
-.intro-scene {
-  display: flex;               #bin坐标
+.intro-scene {       
+/* 这两个 clamp 的意思是：bin的最小值、首选值、最大值。比如 left: clamp(15%, 24vw, 30%) 在手机上大约在 24% 的位置。*/
+  display: flex;               
   flex-direction: column;
   align-items: center;
   gap: 4px;
   position: absolute;
-  left: clamp(15%, 24vw, 30%);
+  left: clamp(15%, 100vw, 50%);
   top: clamp(28%, 34vh, 42%);
   transform: translate(-50%, -50%);
   z-index: 1;
