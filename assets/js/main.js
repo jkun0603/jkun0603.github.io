@@ -653,6 +653,9 @@ function initFallingTags() {
 
   // Mouse constraint — responsive
   const mouse = Mouse.create(container);
+  // Unlock wheel scrolling (Matter.js blocks it by default)
+  container.removeEventListener('wheel', mouse.mousewheel);
+  container.removeEventListener('DOMMouseScroll', mouse.mousewheel);
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse,
     constraint: { stiffness: 0.2, render: { visible: false }, damping: 0.1 }
