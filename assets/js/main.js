@@ -226,12 +226,14 @@ function initIntroReveal() {
     // Once fully hidden, stop painting
     if (progress >= 1) {
       overlay.style.visibility = 'hidden';
-      if (!window._fallingTagsStarted) {
-        window._fallingTagsStarted = true;
-        initFallingTags();
-      }
     } else {
       overlay.style.visibility = '';
+    }
+
+    // Trigger tags when about halfway through the reveal
+    if (progress >= 0.55 && !window._fallingTagsStarted) {
+      window._fallingTagsStarted = true;
+      initFallingTags();
     }
 
     ticking = false;
