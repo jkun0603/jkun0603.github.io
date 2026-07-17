@@ -568,6 +568,10 @@ img {
     height: 240px;
     right: -20px;
   }
+
+  #lanyard-container {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
