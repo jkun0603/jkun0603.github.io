@@ -356,7 +356,8 @@
         .replace(/^-+|-+$/g, '')
         .replace(/[一-鿿]/g, '')
         .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '') || 'post';
+        .replace(/^-+|-+$/g, '');
+      if (!slug) slug = 'post-' + Date.now().toString(36);
       var slugInput = document.getElementById('postSlug');
       if (!slugInput.dataset.manual) {
         slugInput.value = slug;
