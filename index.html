@@ -142,53 +142,80 @@
       const fp = document.getElementById('featuredProjects');
       if (fp) {
         const items = [
-          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'], link: '/projects/personal-website.html' },
-          { emoji: '💡', title: '下一个精彩项目', summary: '灵感正在孵化中，精彩项目即将到来。', tags: ['筹备中'], link: '/projects/next-project.html' },
-          { emoji: '🚧', title: '更多项目', summary: '持续建设中，敬请期待。', tags: ['筹备中'], link: '/projects/coming-soon.html' },
-          { emoji: '🌟', title: '更多项目', summary: '持续建设中，敬请期待。', tags: ['筹备中'], link: '/projects/coming-soon.html' },
+          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'], link: '/projects/personal-website.html', date: '2026-07-17' },
+          { emoji: '💡', title: '下一个精彩项目', summary: '灵感正在孵化中，精彩项目即将到来。', tags: ['筹备中'], link: '/projects/next-project.html', date: '2026-07-01' },
+          { emoji: '🚧', title: '更多项目', summary: '持续建设中，敬请期待。', tags: ['筹备中'], link: '/projects/coming-soon.html', date: '2026-06-01' },
         ];
-        items.forEach((p, i) => {
-          const div = document.createElement('div');
-          div.className = `project-card fade-in fade-in-d${i+2}`;
-          div.innerHTML = `
-            <a href="${p.link}" class="card-link">
-              <div class="project-card-image">${p.emoji}</div>
-              <div class="project-card-body">
-                <h3>${p.title}</h3>
-                <p>${p.summary}</p>
-                <div class="project-tags">${p.tags.map(t => `<span class="project-tag">${t}</span>`).join('')}</div>
-              </div>
-            </a>`;
+        // Sort by date descending, take up to 6
+        items.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var maxProjects = Math.min(items.length, 6);
+        for (var i = 0; i < maxProjects; i++) {
+          var p = items[i];
+          var div = document.createElement('div');
+          div.className = 'project-card fade-in fade-in-d' + ((i % 4) + 2);
+          div.innerHTML = '<a href="' + p.link + '" class="card-link">' +
+            '<div class="project-card-image">' + p.emoji + '</div>' +
+            '<div class="project-card-body">' +
+            '<h3>' + p.title + '</h3>' +
+            '<p>' + p.summary + '</p>' +
+            '<div class="project-tags">' + p.tags.map(function(t) { return '<span class="project-tag">' + t + '</span>'; }).join('') + '</div>' +
+            '</div></a>';
           fp.appendChild(div);
-        });
+        }
       }
 
       const fposts = document.getElementById('featuredPosts');
-      if (fposts) {
-        const posts = [
-          { emoji: '🚀', title: '我的第一篇博客文章', date: '2026-07-15', summary: '搭建个人站的过程和心得。', tags: ['随笔'], link: '/blog/getting-started.html' },
-          { emoji: '🎨', title: '理解现代 CSS 布局', date: '2026-07-10', summary: 'Flexbox 和 Grid 布局核心概念。', tags: ['技术'], link: '/blog/css-layout.html' },
-          { emoji: '📝', title: '2026 年中技术总结', date: '2026-06-30', summary: '回顾上半年学习的技术和新掌握的工具。', tags: ['技术'], link: '/blog/mid-year-review.html' },
-          { emoji: '⚡', title: 'JavaScript 实用技巧', date: '2026-06-15', summary: '日常开发中积累的 JS 技巧和最佳实践。', tags: ['技术'], link: '/blog/js-tips.html' },
-        ];
-        posts.forEach((p, i) => {
-          const div = document.createElement('div');
-          div.className = `blog-card fade-in fade-in-d${i+2}`;
-          div.innerHTML = `
-            <a href="${p.link}" class="card-link">
-              <div class="blog-card-image">${p.emoji}</div>
-              <div class="blog-card-body">
-                <div class="blog-card-meta">${p.date}</div>
-                <h3>${p.title}</h3>
-                <p>${p.summary}</p>
-                <div class="blog-card-tags">${p.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}</div>
-              </div>
-            </a>`;
+      if (!fposts) return;
+
+      // Try loading from JSON index, fallback to hardcoded
+      function renderPosts(posts) {
+        posts.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var maxPosts = Math.min(posts.length, 6);
+        for (var i = 0; i < maxPosts; i++) {
+          var p = posts[i];
+          var link = p.link || (p.slug ? '/blog/view.html?slug=' + p.slug : '#');
+          var emoji = p.emoji || '\u{1F4DD}';
+          var tags = p.tags || [];
+          var date = p.date || '';
+          var summary = p.summary || '';
+          var div = document.createElement('div');
+          div.className = 'blog-card fade-in fade-in-d' + ((i % 4) + 2);
+          div.innerHTML = '<a href="' + link + '" class="card-link">' +
+            '<div class="blog-card-image">' + emoji + '</div>' +
+            '<div class="blog-card-body">' +
+            '<div class="blog-card-meta">' + date + '</div>' +
+            '<h3>' + p.title + '</h3>' +
+            '<p>' + summary + '</p>' +
+            '<div class="blog-card-tags">' + tags.map(function(t) { return '<span class="blog-tag">' + t + '</span>'; }).join('') + '</div>' +
+            '</div></a>';
           fposts.appendChild(div);
-        });
+        }
         initScrollAnimations();
         initTiltedCards();
       }
+
+      var fallbackPosts = [
+        { emoji: '\u{1F680}', title: '我的第一篇博客文章', date: '2026-07-15', summary: '搭建个人站的过程和心得。', tags: ['随笔'], link: '/blog/getting-started.html' },
+        { emoji: '\u{1F3A8}', title: '理解现代 CSS 布局', date: '2026-07-10', summary: 'Flexbox 和 Grid 布局核心概念。', tags: ['技术'], link: '/blog/css-layout.html' },
+        { emoji: '\u{1F4DD}', title: '2026 年中技术总结', date: '2026-06-30', summary: '回顾上半年学习的技术和新掌握的工具。', tags: ['技术'], link: '/blog/mid-year-review.html' },
+        { emoji: '⚡', title: 'JavaScript 实用技巧', date: '2026-06-15', summary: '日常开发中积累的 JS 技巧和最佳实践。', tags: ['技术'], link: '/blog/js-tips.html' },
+      ];
+
+      fetch('/posts/posts.json')
+        .then(function(r) {
+          if (!r.ok) throw new Error('Failed');
+          return r.json();
+        })
+        .then(function(data) {
+          if (data && data.posts && data.posts.length) {
+            renderPosts(data.posts);
+          } else {
+            renderPosts(fallbackPosts);
+          }
+        })
+        .catch(function() {
+          renderPosts(fallbackPosts);
+        });
     });
   </script>
 </body>
