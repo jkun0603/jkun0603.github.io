@@ -1,8 +1,8 @@
 ---
-title: "伟大"
+title: "爱情"
 slug: post
 date: 2026-07-17
 emoji: 📝
 ---
 
-请问
+请求
