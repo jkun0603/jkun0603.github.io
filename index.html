@@ -148,7 +148,7 @@
         ];
         // Sort by date descending, take up to 6
         items.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
-        var maxProjects = Math.min(items.length, 6);
+        var maxProjects = Math.min(items.length, 4);
         for (var i = 0; i < maxProjects; i++) {
           var p = items[i];
           var div = document.createElement('div');
@@ -170,7 +170,7 @@
       // Try loading from JSON index, fallback to hardcoded
       function renderPosts(posts) {
         posts.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
-        var maxPosts = Math.min(posts.length, 6);
+        var maxPosts = Math.min(posts.length, 4);
         for (var i = 0; i < maxPosts; i++) {
           var p = posts[i];
           var link = p.link || (p.slug ? '/blog/view.html?slug=' + p.slug : '#');
