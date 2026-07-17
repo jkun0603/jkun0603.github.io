@@ -1,10 +1,20 @@
 {
   "posts": [
     {
+      "title": "爱我的",
+      "slug": "post",
+      "date": "2026-07-17",
+      "tags": [],
+      "emoji": "📝",
+      "summary": ""
+    },
+    {
       "title": "Hello CMS",
       "slug": "hello-cms",
       "date": "2026-07-17",
-      "tags": ["随笔"],
+      "tags": [
+        "随笔"
+      ],
       "emoji": "👋",
       "summary": "测试 Decap CMS 的第一篇文章。"
     },
@@ -13,7 +23,10 @@
       "slug": "getting-started",
       "link": "/blog/getting-started.html",
       "date": "2026-07-15",
-      "tags": ["随笔", "生活"],
+      "tags": [
+        "随笔",
+        "生活"
+      ],
       "emoji": "🚀",
       "summary": "搭建个人站的过程和心得。"
     },
@@ -22,7 +35,10 @@
       "slug": "css-layout",
       "link": "/blog/css-layout.html",
       "date": "2026-07-10",
-      "tags": ["技术", "CSS"],
+      "tags": [
+        "技术",
+        "CSS"
+      ],
       "emoji": "🎨",
       "summary": "深入探讨 Flexbox 和 Grid 布局的核心概念与实际应用场景。"
     },
@@ -31,7 +47,10 @@
       "slug": "mid-year-review",
       "link": "/blog/mid-year-review.html",
       "date": "2026-06-30",
-      "tags": ["技术", "总结"],
+      "tags": [
+        "技术",
+        "总结"
+      ],
       "emoji": "📝",
       "summary": "回顾上半年学习的技术和新掌握的工具，以及下半年的学习计划。"
     },
@@ -40,7 +59,10 @@
       "slug": "js-tips",
       "link": "/blog/js-tips.html",
       "date": "2026-06-15",
-      "tags": ["技术", "JS"],
+      "tags": [
+        "技术",
+        "JS"
+      ],
       "emoji": "⚡",
       "summary": "日常开发中积累的一些 JavaScript 实用技巧和最佳实践。"
     },
@@ -49,7 +71,10 @@
       "slug": "responsive-design",
       "link": "/blog/responsive-design.html",
       "date": "2026-05-28",
-      "tags": ["技术", "CSS"],
+      "tags": [
+        "技术",
+        "CSS"
+      ],
       "emoji": "📱",
       "summary": "从移动优先到桌面端，系统学习响应式设计的方法与技巧。"
     },
@@ -58,7 +83,10 @@
       "slug": "threejs-intro",
       "link": "/blog/threejs-intro.html",
       "date": "2026-05-10",
-      "tags": ["技术", "WebGL"],
+      "tags": [
+        "技术",
+        "WebGL"
+      ],
       "emoji": "🌍",
       "summary": "WebGL 与 Three.js 的基础概念，以及如何创建第一个 3D 场景。"
     }
