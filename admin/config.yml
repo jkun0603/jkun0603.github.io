@@ -1,0 +1,60 @@
+# Decap CMS 配置
+backend:
+  name: github
+  repo: jkun0603/jkun0603.github.io
+  branch: main
+  base_url: https://oauth.decapcms.app
+
+publish_mode: editorial_workflow
+media_folder: assets/images
+public_folder: /assets/images
+
+site_url: https://jkun0603.github.io
+display_url: https://jkun0603.github.io
+logo_url: https://jkun0603.github.io/assets/images/樱岛麻衣.png
+
+locale: zh_Hans
+
+collections:
+  # ===== 博客文章 =====
+  - name: posts
+    label: "博客文章"
+    label_singular: "文章"
+    folder: posts
+    create: true
+    delete: true
+    format: yaml-frontmatter
+    extension: md
+    slug: "{{fields.slug}}"
+    preview_path: "blog/view.html?slug={{fields.slug}}"
+    summary: "{{fields.emoji}} {{fields.title}} - {{fields.date}}"
+    sortable_fields: ["date", "title"]
+    fields:
+      - { name: title, label: "标题", widget: string }
+      - { name: slug, label: "链接标识", hint: "用于 URL，如 my-post → /blog/view.html?slug=my-post", widget: string, pattern: ["^[a-z0-9-]+$", "只能包含小写字母、数字和连字符"] }
+      - { name: date, label: "日期", widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { name: tags, label: "标签", widget: list, default: ["技术"], field: { name: tag, label: "标签" } }
+      - { name: emoji, label: "表情符号", widget: string, required: false }
+      - { name: summary, label: "摘要", widget: text, required: false }
+      - { name: body, label: "正文", widget: markdown }
+
+  # ===== 博客索引 =====
+  - name: index
+    label: "博客索引"
+    files:
+      - name: posts-index
+        label: "文章列表配置"
+        file: posts/posts.json
+        description: "发布新文章后，在此添加文章到列表"
+        fields:
+          - name: posts
+            label: "文章列表"
+            widget: list
+            fields:
+              - { name: title, label: "标题", widget: string }
+              - { name: slug, label: "标识", widget: string }
+              - { name: link, label: "链接 (可选)", required: false, hint: "CMS 文章留空即可，系统自动生成链接" }
+              - { name: date, label: "日期", widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+              - { name: tags, label: "标签", widget: list, field: { name: tag, label: "标签" } }
+              - { name: emoji, label: "表情符号", required: false }
+              - { name: summary, label: "摘要", widget: text, required: false }

@@ -101,14 +101,13 @@ function initBlogList() {
   const grid = document.getElementById('blogGrid');
   if (!grid) return;
 
-  // Blog posts data — add/edit your posts here
-  const posts = [
+  const fallbackPosts = [
     {
       title: '我的第一篇博客文章',
       date: '2026-07-15',
       summary: '这是我个人网站的第一篇文章，分享一下搭建个人站的过程和心得。',
       tags: ['随笔', '生活'],
-      emoji: '🚀',
+      emoji: '\u{1F680}',
       link: '/blog/getting-started.html',
     },
     {
@@ -116,7 +115,7 @@ function initBlogList() {
       date: '2026-07-10',
       summary: '深入探讨 Flexbox 和 Grid 布局的核心概念与实际应用场景。',
       tags: ['技术', 'CSS'],
-      emoji: '🎨',
+      emoji: '\u{1F3A8}',
       link: '/blog/css-layout.html',
     },
     {
@@ -124,7 +123,7 @@ function initBlogList() {
       date: '2026-06-30',
       summary: '回顾上半年学习的技术和新掌握的工具，以及下半年的学习计划。',
       tags: ['技术', '总结'],
-      emoji: '📝',
+      emoji: '\u{1F4DD}',
       link: '/blog/mid-year-review.html',
     },
     {
@@ -140,7 +139,7 @@ function initBlogList() {
       date: '2026-05-28',
       summary: '从移动优先到桌面端，系统学习响应式设计的方法与技巧。',
       tags: ['技术', 'CSS'],
-      emoji: '📱',
+      emoji: '\u{1F4F1}',
       link: '/blog/responsive-design.html',
     },
     {
@@ -148,32 +147,58 @@ function initBlogList() {
       date: '2026-05-10',
       summary: 'WebGL 与 Three.js 的基础概念，以及如何创建第一个 3D 场景。',
       tags: ['技术', 'WebGL'],
-      emoji: '🌍',
+      emoji: '\u{1F30D}',
       link: '/blog/threejs-intro.html',
     },
   ];
 
-  posts.forEach((post, i) => {
-    const card = document.createElement('article');
-    card.className = `blog-card fade-in fade-in-d${(i % 4) + 1}`;
-    card.innerHTML = `
-      <a href="${post.link}" class="card-link">
-        <div class="blog-card-image">${post.emoji}</div>
-        <div class="blog-card-body">
-          <div class="blog-card-meta">${post.date}</div>
-          <h3>${post.title}</h3>
-          <p>${post.summary}</p>
-          <div class="blog-card-tags">
-            ${post.tags.map((t) => `<span class="blog-tag">${t}</span>`).join('')}
-          </div>
-        </div>
-      </a>
-    `;
-    grid.appendChild(card);
-  });
+  function renderPosts(posts) {
+    // Sort by date descending
+    posts.sort(function(a, b) { return b.date.localeCompare(a.date); });
 
-  // Observe new cards
-  initScrollAnimations();
+    posts.forEach(function(post, i) {
+      var link = post.link || (post.slug ? '/blog/view.html?slug=' + post.slug : '#');
+      var emoji = post.emoji || '\u{1F4DD}';
+      var tags = post.tags || [];
+      var summary = post.summary || '';
+      var date = post.date || '';
+
+      var card = document.createElement('article');
+      card.className = 'blog-card fade-in fade-in-d' + ((i % 4) + 1);
+      card.innerHTML =
+        '<a href="' + link + '" class="card-link">' +
+          '<div class="blog-card-image">' + emoji + '</div>' +
+          '<div class="blog-card-body">' +
+            '<div class="blog-card-meta">' + date + '</div>' +
+            '<h3>' + post.title + '</h3>' +
+            '<p>' + summary + '</p>' +
+            '<div class="blog-card-tags">' +
+              tags.map(function(t) { return '<span class="blog-tag">' + t + '</span>'; }).join('') +
+            '</div>' +
+          '</div>' +
+        '</a>';
+      grid.appendChild(card);
+    });
+
+    initScrollAnimations();
+  }
+
+  // Try loading from JSON index
+  fetch('/posts/posts.json')
+    .then(function(r) {
+      if (!r.ok) throw new Error('Failed to load');
+      return r.json();
+    })
+    .then(function(data) {
+      if (data && data.posts && data.posts.length) {
+        renderPosts(data.posts);
+      } else {
+        renderPosts(fallbackPosts);
+      }
+    })
+    .catch(function() {
+      renderPosts(fallbackPosts);
+    });
 }
 
 /* ===== Dynamic Projects (for projects page) ===== */
