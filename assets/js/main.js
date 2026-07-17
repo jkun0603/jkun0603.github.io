@@ -204,8 +204,8 @@ function initBlogList() {
     initScrollAnimations();
   }
 
-  // Try loading from JSON index
-  fetch('/posts/posts.json')
+  // Try loading from JSON index (cache-bust for GitHub Pages CDN)
+  fetch('/posts/posts.json?t=' + Date.now(), { cache: 'no-cache' })
     .then(function(r) {
       if (!r.ok) throw new Error('Failed to load');
       return r.json();

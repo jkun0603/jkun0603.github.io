@@ -201,7 +201,7 @@
         { emoji: '⚡', title: 'JavaScript 实用技巧', date: '2026-06-15', summary: '日常开发中积累的 JS 技巧和最佳实践。', tags: ['技术'], link: '/blog/js-tips.html' },
       ];
 
-      fetch('/posts/posts.json')
+      fetch('/posts/posts.json?t=' + Date.now(), { cache: 'no-cache' })
         .then(function(r) {
           if (!r.ok) throw new Error('Failed');
           return r.json();
