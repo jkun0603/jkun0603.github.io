@@ -164,24 +164,30 @@
           })
           .then(function(data) {
             if (!data || !data.content) throw new Error('无法读取 posts.json');
-            var content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+            // GitHub API returns base64 with newlines
+            var raw = atob(data.content.replace(/\n/g, ''));
+            // Decode UTF-8
+            var content = decodeURIComponent(escape(raw));
             var json;
-            try { json = JSON.parse(content); } catch(e) { throw new Error('无法解析 posts.json'); }
+            try { json = JSON.parse(content); } catch(e) { throw new Error('无法解析 posts.json: ' + e.message); }
             if (!json.posts) json.posts = [];
+            var before = json.posts.length;
             json.posts = json.posts.filter(function(p) { return p.slug !== slug; });
+            if (json.posts.length === before) throw new Error('未在 posts.json 中找到该文章记录');
             var newContent = JSON.stringify(json, null, 2);
             return putFile('posts/posts.json', newContent, 'delete: remove ' + slug + ' from index');
           })
           .then(function() {
-            // Remove card from DOM
             var card = btn.closest('.blog-card, article');
             if (card) card.remove();
           })
           .catch(function(err) {
-            alert('删除失败：' + err.message);
+            console.error('Delete failed:', err);
             btn.disabled = false;
             btn.textContent = '\u{1F5D1}️';
+            alert('删除失败：' + err.message + '\n\n请按 F12 查看控制台详细信息，或检查你的 GitHub Token 是否有 Contents 读写权限。');
           });
+      };
       };
     })();
   </script>
