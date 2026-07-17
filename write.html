@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="写博客" />
+  <title>写文章 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+  <style>
+    .editor-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .editor-wrap .field-group {
+      margin-bottom: 20px;
+    }
+    .editor-wrap label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+    .editor-wrap input,
+    .editor-wrap textarea,
+    .editor-wrap select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .editor-wrap input:focus,
+    .editor-wrap textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .editor-wrap textarea {
+      resize: vertical;
+    }
+    .editor-wrap .row {
+      display: flex;
+      gap: 16px;
+    }
+    .editor-wrap .row .field-group {
+      flex: 1;
+    }
+    .editor-wrap .editor-toolbar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-weak);
+      margin-bottom: 0;
+    }
+    .editor-wrap .editor-toolbar button {
+      padding: 4px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+    }
+    .editor-wrap .editor-toolbar button:hover {
+      background: var(--accent-light);
+    }
+    .editor-wrap .body-area {
+      position: relative;
+    }
+    .editor-wrap .body-area textarea {
+      min-height: 360px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+    }
+    .editor-wrap .body-area .preview {
+      display: none;
+      min-height: 360px;
+      padding: 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: var(--bg-primary);
+      line-height: 1.8;
+      overflow-y: auto;
+    }
+    .editor-wrap .body-area .preview h2 { margin-top: 1.5em; }
+    .editor-wrap .body-area .preview pre {
+      background: var(--bg-secondary);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .editor-wrap .body-area .preview code {
+      font-size: 0.85em;
+    }
+    .editor-wrap .publish-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0;
+    }
+    .editor-wrap .publish-bar .msg {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .editor-wrap .publish-bar .msg.ok { color: #22c55e; }
+    .editor-wrap .publish-bar .msg.err { color: #ef4444; }
+
+    /* Token setup overlay */
+    .token-setup {
+      max-width: 480px;
+      margin: 80px auto;
+      text-align: center;
+    }
+    .token-setup h2 { margin-bottom: 12px; }
+    .token-setup p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .token-setup code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .token-setup .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .token-setup .input-row input { flex: 1; }
+    .editor-wrap .slug-hint {
+      font-size: 0.78rem;
+      color: var(--text-tertiary, #999);
+      margin-top: 4px;
+    }
+    .editor-wrap .char-count {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--text-tertiary, #999);
+      padding-top: 2px;
+    }
+    @media (max-width: 600px) {
+      .editor-wrap .row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- Editor -->
+  <section class="section">
+    <div class="container">
+      <div id="tokenScreen" class="token-setup fade-in" style="display:none;">
+        <div style="font-size:3rem;margin-bottom:16px;">🔑</div>
+        <h2>设置 GitHub 令牌</h2>
+        <p>
+          需要配置一个 GitHub 访问令牌才能发布文章。
+        </p>
+        <ol style="text-align:left;max-width:400px;margin:0 auto 24px;line-height:2;color:var(--text-secondary);font-size:0.9rem;">
+          <li>打开 <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a></li>
+          <li>点击 <strong>Generate new token</strong> → <strong>Fine-grained token</strong></li>
+          <li>Repository access: 选 <strong>Only select repositories</strong> → 选 <strong>jkun0603/jkun0603.github.io</strong></li>
+          <li>Permissions: 把 <strong>Contents</strong> 设为 <strong>Read and write</strong></li>
+          <li>生成后复制令牌粘贴到下面</li>
+        </ol>
+        <div class="input-row">
+          <input type="password" id="tokenInput" placeholder="粘贴你的 GitHub Personal Access Token" />
+          <button class="btn btn-primary" onclick="saveToken()">保存</button>
+        </div>
+        <p id="tokenError" style="color:#ef4444;font-size:0.85rem;display:none;margin-top:8px;"></p>
+      </div>
+
+      <div id="editorScreen" class="editor-wrap fade-in" style="display:none;">
+        <h1 style="margin-bottom:24px;">✏️ 写文章</h1>
+
+        <div class="row">
+          <div class="field-group" style="flex:2;">
+            <label for="postTitle">标题</label>
+            <input type="text" id="postTitle" placeholder="文章标题" oninput="autoSlug()" />
+          </div>
+          <div class="field-group" style="flex:1;">
+            <label for="postEmoji">表情</label>
+            <input type="text" id="postEmoji" placeholder="🚀" maxlength="4" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="postSlug">链接标识</label>
+          <input type="text" id="postSlug" placeholder="my-post-title" />
+          <div class="slug-hint">用于 URL：/blog/view.html?slug=<span id="slugPreview">my-post-title</span></div>
+        </div>
+
+        <div class="row">
+          <div class="field-group">
+            <label for="postTags">标签（逗号分隔）</label>
+            <input type="text" id="postTags" placeholder="技术, CSS, JavaScript" />
+          </div>
+          <div class="field-group">
+            <label for="postDate">日期</label>
+            <input type="date" id="postDate" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="postSummary">摘要</label>
+          <input type="text" id="postSummary" placeholder="文章简短介绍" />
+        </div>
+
+        <div class="field-group body-area">
+          <label>正文（Markdown）</label>
+          <div class="editor-toolbar">
+            <button onclick="wrapText('**','**')" title="粗体"><b>B</b></button>
+            <button onclick="wrapText('*','*')" title="斜体"><i>I</i></button>
+            <button onclick="wrapText('## ','')" title="标题">H2</button>
+            <button onclick="wrapText('```\n','\n```')" title="代码块">&lt;/&gt;</button>
+            <button onclick="wrapText('[','](url)')" title="链接">🔗</button>
+            <button onclick="wrapText('- ','')" title="列表">·</button>
+            <span style="flex:1;"></span>
+            <button onclick="togglePreview()" id="previewToggle">预览</button>
+          </div>
+          <textarea id="postBody" placeholder="在这里写文章内容，支持 Markdown 语法&#10;&#10;# 标题&#10;## 副标题&#10;**粗体** *斜体*&#10;- 列表项&#10;```代码块```"></textarea>
+          <div class="preview" id="postPreview"></div>
+          <div class="char-count"><span id="charCount">0</span> 字</div>
+        </div>
+
+        <div class="publish-bar">
+          <button class="btn btn-primary" onclick="publish()" id="publishBtn">📤 发布文章</button>
+          <span class="msg" id="publishMsg"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+  <script>
+    var TOKEN_KEY = 'gh_blog_token';
+    var REPO = 'jkun0603/jkun0603.github.io';
+    var BRANCH = 'main';
+
+    /* ===== Token management ===== */
+    function loadToken() { return localStorage.getItem(TOKEN_KEY); }
+
+    function saveToken() {
+      var token = document.getElementById('tokenInput').value.trim();
+      if (!token) { showTokenError('请输入令牌'); return; }
+      // Validate: fetch the repo to check token works
+      fetch('https://api.github.com/repos/' + REPO, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) {
+        if (!r.ok) throw new Error('令牌无效或权限不足 (HTTP ' + r.status + ')');
+        localStorage.setItem(TOKEN_KEY, token);
+        document.getElementById('tokenError').style.display = 'none';
+        initEditor();
+      })
+      .catch(function(e) {
+        showTokenError(e.message);
+      });
+    }
+
+    function showTokenError(msg) {
+      var el = document.getElementById('tokenError');
+      el.textContent = msg;
+      el.style.display = '';
+    }
+
+    /* ===== GitHub API helpers ===== */
+    function gh(endpoint, method, body) {
+      var opts = {
+        method: method || 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + loadToken(),
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      };
+      if (body) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(body);
+      }
+      return fetch('https://api.github.com' + endpoint, opts).then(function(r) {
+        if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || ('HTTP ' + r.status)); });
+        return r.json().then(function(d) { return d; }).catch(function() { return {}; });
+      });
+    }
+
+    function utf8ToBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    /* ===== Get file SHA (for updating existing files) ===== */
+    function getSha(path) {
+      return gh('/repos/' + REPO + '/contents/' + path + '?ref=' + BRANCH)
+        .then(function(data) {
+          if (data && data.sha) return data.sha;
+          return null;
+        })
+        .catch(function() { return null; });
+    }
+
+    /* ===== Create or update a file ===== */
+    function putFile(path, content, message) {
+      return getSha(path).then(function(sha) {
+        var payload = {
+          message: message || 'Update ' + path,
+          content: utf8ToBase64(content),
+          branch: BRANCH,
+        };
+        if (sha) payload.sha = sha;
+        return gh('/repos/' + REPO + '/contents/' + path, 'PUT', payload);
+      });
+    }
+
+    /* ===== Slug generation ===== */
+    function autoSlug() {
+      var title = document.getElementById('postTitle').value.trim();
+      if (!title) return;
+      var slug = title
+        .toLowerCase()
+        .replace(/[^\w一-鿿]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/[一-鿿]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'post';
+      var slugInput = document.getElementById('postSlug');
+      if (!slugInput.dataset.manual) {
+        slugInput.value = slug;
+        document.getElementById('slugPreview').textContent = slug;
+      }
+    }
+
+    /* ===== Editor initialization ===== */
+    function initEditor() {
+      document.getElementById('tokenScreen').style.display = 'none';
+      document.getElementById('editorScreen').style.display = '';
+
+      // Set today's date
+      var today = new Date().toISOString().slice(0, 10);
+      document.getElementById('postDate').value = today;
+
+      // Add scroll animation
+      setTimeout(function() {
+        document.querySelectorAll('.fade-in').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 50);
+    }
+
+    /* ===== Markdown helpers ===== */
+    function wrapText(before, after) {
+      var ta = document.getElementById('postBody');
+      var start = ta.selectionStart;
+      var end = ta.selectionEnd;
+      var selected = ta.value.slice(start, end);
+      ta.value = ta.value.slice(0, start) + before + selected + after + ta.value.slice(end);
+      updateCharCount();
+    }
+
+    function togglePreview() {
+      var ta = document.getElementById('postBody');
+      var preview = document.getElementById('postPreview');
+      var btn = document.getElementById('previewToggle');
+      if (preview.style.display === 'block') {
+        preview.style.display = 'none';
+        ta.style.display = '';
+        btn.textContent = '预览';
+      } else {
+        preview.innerHTML = marked.parse(ta.value);
+        preview.style.display = 'block';
+        ta.style.display = 'none';
+        btn.textContent = '编辑';
+      }
+    }
+
+    function updateCharCount() {
+      document.getElementById('charCount').textContent = document.getElementById('postBody').value.length;
+    }
+
+    /* ===== Publish ===== */
+    function publish() {
+      var title = document.getElementById('postTitle').value.trim();
+      var slug = document.getElementById('postSlug').value.trim();
+      var emoji = document.getElementById('postEmoji').value.trim() || '\u{1F4DD}';
+      var tagsRaw = document.getElementById('postTags').value.trim();
+      var date = document.getElementById('postDate').value;
+      var summary = document.getElementById('postSummary').value.trim();
+      var body = document.getElementById('postBody').value;
+
+      // Validate
+      if (!title) { showMsg('请输入文章标题', 'err'); return; }
+      if (!slug) { showMsg('请输入链接标识', 'err'); return; }
+      if (!date) { showMsg('请选择日期', 'err'); return; }
+      if (!body) { showMsg('请输入文章正文', 'err'); return; }
+
+      var tags = tagsRaw ? tagsRaw.split(/[,，]\s*/).map(function(t) { return t.trim(); }).filter(Boolean) : [];
+      var btn = document.getElementById('publishBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ 发布中...';
+      showMsg('正在提交...', '');
+
+      // Build frontmatter + body
+      var mdContent = '---\n';
+      mdContent += 'title: "' + title + '"\n';
+      mdContent += 'slug: ' + slug + '\n';
+      mdContent += 'date: ' + date + '\n';
+      if (tags.length) mdContent += 'tags:\n' + tags.map(function(t) { return '  - ' + t; }).join('\n') + '\n';
+      mdContent += 'emoji: ' + emoji + '\n';
+      if (summary) mdContent += 'summary: "' + summary + '"\n';
+      mdContent += '---\n\n' + body;
+
+      // Step 1: Save the post file
+      putFile('posts/' + slug + '.md', mdContent, 'feat: new post - ' + title)
+        .then(function() {
+          // Step 2: Update posts.json index
+          return getSha('posts/posts.json').then(function(sha) {
+            return gh('/repos/' + REPO + '/contents/posts/posts.json?ref=' + BRANCH)
+              .then(function(data) {
+                if (!data || !data.content) throw new Error('无法读取 posts.json');
+                var content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+                var json;
+                try { json = JSON.parse(content); } catch(e) { json = { posts: [] }; }
+                if (!json.posts) json.posts = [];
+
+                // Check if slug already exists, update or add
+                var existing = json.posts.findIndex(function(p) { return p.slug === slug; });
+                var entry = {
+                  title: title,
+                  slug: slug,
+                  date: date,
+                  tags: tags,
+                  emoji: emoji,
+                  summary: summary,
+                };
+                if (existing >= 0) {
+                  json.posts[existing] = entry;
+                } else {
+                  json.posts.unshift(entry); // newest first
+                }
+
+                var newContent = JSON.stringify(json, null, 2);
+                return putFile('posts/posts.json', newContent, 'feat: update posts index - ' + title);
+              });
+          });
+        })
+        .then(function() {
+          btn.disabled = false;
+          btn.textContent = '📤 发布文章';
+          showMsg('✅ 发布成功！', 'ok');
+          // Clear form
+          document.getElementById('postTitle').value = '';
+          document.getElementById('postSlug').value = '';
+          document.getElementById('postEmoji').value = '';
+          document.getElementById('postTags').value = '';
+          document.getElementById('postSummary').value = '';
+          document.getElementById('postBody').value = '';
+          updateCharCount();
+        })
+        .catch(function(err) {
+          btn.disabled = false;
+          btn.textContent = '📤 发布文章';
+          showMsg('❌ 发布失败：' + err.message, 'err');
+        });
+    }
+
+    function showMsg(text, type) {
+      var el = document.getElementById('publishMsg');
+      el.textContent = text;
+      el.className = 'msg' + (type ? ' ' + type : '');
+    }
+
+    /* ===== Init ===== */
+    document.addEventListener('DOMContentLoaded', function() {
+      // Char count
+      document.getElementById('postBody').addEventListener('input', updateCharCount);
+
+      // Manual slug editing
+      document.getElementById('postSlug').addEventListener('input', function() {
+        this.dataset.manual = '1';
+        document.getElementById('slugPreview').textContent = this.value || '...';
+      });
+
+      // Slug preview
+      document.getElementById('postSlug').addEventListener('keyup', function() {
+        document.getElementById('slugPreview').textContent = this.value || '...';
+      });
+
+      // Token enter key
+      document.getElementById('tokenInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') saveToken();
+      });
+
+      var token = loadToken();
+      if (token) {
+        // Verify token still works
+        fetch('https://api.github.com/repos/' + REPO, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) {
+          if (r.ok) { initEditor(); }
+          else {
+            localStorage.removeItem(TOKEN_KEY);
+            document.getElementById('tokenScreen').style.display = '';
+          }
+        })
+        .catch(function() {
+          document.getElementById('tokenScreen').style.display = '';
+        });
+      } else {
+        document.getElementById('tokenScreen').style.display = '';
+      }
+
+      // Fade in
+      setTimeout(function() {
+        document.querySelectorAll('.fade-in').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 50);
+    });
+  </script>
+</body>
+</html>
