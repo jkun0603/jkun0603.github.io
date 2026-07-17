@@ -1,6 +1,14 @@
 {
   "posts": [
     {
+      "title": "伟大",
+      "slug": "post",
+      "date": "2026-07-17",
+      "tags": [],
+      "emoji": "📝",
+      "summary": ""
+    },
+    {
       "title": "Hello CMS",
       "slug": "hello-cms",
       "date": "2026-07-17",
