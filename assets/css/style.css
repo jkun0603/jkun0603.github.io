@@ -124,15 +124,15 @@ img {
   line-height: 1.7;
 }
 
-/* Lanyard card container */
+/* Lanyard card container — fixed at viewport top-right */
 #lanyard-container {
-  position: absolute;
+  position: fixed;
   top: 0;
-  right: 40px;
+  right: 30px;
   width: 250px;
   height: 400px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 100;
 }
 #lanyard-container canvas {
   pointer-events: auto;

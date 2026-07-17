@@ -398,12 +398,7 @@ function initLanyard(container) {
         break;
       }
       case 'IDLE': {
-        idleTimer += dt;
-        if (idleTimer > 4.0) {
-          // Auto-exit after 4s of idling (user didn't interact)
-          state = 'EXITING';
-          idleTimer = 0;
-        }
+        // No auto-exit — card stays as viewport decoration
         break;
       }
       case 'SNAPPING_BACK': {
@@ -475,7 +470,7 @@ function initLanyard(container) {
   clock.start();
   animate();
 
-  return { trigger, destroy, skipToExit };
+  return { trigger, destroy, skipToExit, isHidden: () => state === 'HIDDEN' };
 }
 
 // Auto-init on DOMContentLoaded
@@ -487,29 +482,26 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth < 768) return;
 
   const lanyard = initLanyard(container);
+  let introCleared = false;
 
-  // Find parent section
-  const section = container.closest('.section');
-  if (!section) return;
+  // Trigger on scroll — card drops from top of viewport
+  const onScroll = () => {
+    // Wait for intro overlay to clear
+    if (!introCleared) {
+      const overlay = document.getElementById('intro-overlay');
+      if (overlay && overlay.style.visibility !== 'hidden') return;
+      introCleared = true;
+    }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          lanyard.trigger();
-        } else {
-          lanyard.skipToExit();
-        }
-      });
-    },
-    { threshold: 0.15 }
-  );
-
-  observer.observe(section);
+    if (lanyard.isHidden()) {
+      lanyard.trigger();
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
 
   // Clean up on page unload
   window.addEventListener('beforeunload', () => {
-    observer.disconnect();
+    window.removeEventListener('scroll', onScroll);
     lanyard.destroy();
   });
 });
