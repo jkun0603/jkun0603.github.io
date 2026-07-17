@@ -316,13 +316,14 @@ function initLanyard(container) {
     }
   });
 
-  window.addEventListener('pointerup', () => {
+  const onPointerUp = () => {
     if (dragging) {
       dragging = false;
       state = 'SNAPPING_BACK';
       canvas.style.cursor = 'default';
     }
-  });
+  };
+  window.addEventListener('pointerup', onPointerUp);
 
   // --- Animation loop ---
   let clock = new THREE.Clock();
@@ -442,6 +443,7 @@ function initLanyard(container) {
   }
 
   function destroy() {
+    window.removeEventListener('pointerup', onPointerUp);
     if (animId) {
       cancelAnimationFrame(animId);
       animId = null;
