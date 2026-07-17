@@ -156,12 +156,15 @@ function initBlogList() {
     // Sort by date descending
     posts.sort(function(a, b) { return b.date.localeCompare(a.date); });
 
+    var hasToken = !!localStorage.getItem('gh_blog_token');
+
     posts.forEach(function(post, i) {
       var link = post.link || (post.slug ? '/blog/view.html?slug=' + post.slug : '#');
       var emoji = post.emoji || '\u{1F4DD}';
       var tags = post.tags || [];
       var summary = post.summary || '';
       var date = post.date || '';
+      var deletable = hasToken && !post.link && post.slug;
 
       var card = document.createElement('article');
       card.className = 'blog-card fade-in fade-in-d' + ((i % 4) + 1);
@@ -176,9 +179,24 @@ function initBlogList() {
               tags.map(function(t) { return '<span class="blog-tag">' + t + '</span>'; }).join('') +
             '</div>' +
           '</div>' +
-        '</a>';
+        '</a>' +
+        (deletable ? '<button class="blog-delete-btn" data-slug="' + post.slug + '" title="删除文章">\u{1F5D1}️</button>' : '');
       grid.appendChild(card);
     });
+
+    // Wire up delete buttons
+    if (hasToken && typeof window.deleteCmsPost === 'function') {
+      grid.querySelectorAll('.blog-delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var slug = btn.dataset.slug;
+          if (confirm('\u{1F4DD} 确定要删除这篇文章吗？\n\n删除后无法恢复，但 posts.json 中的记录需要手动清理。')) {
+            window.deleteCmsPost(slug, btn);
+          }
+        });
+      });
+    }
 
     initScrollAnimations();
   }

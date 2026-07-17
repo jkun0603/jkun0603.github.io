@@ -7,6 +7,34 @@
   <title>博客 | 个人主页</title>
   <link rel="stylesheet" href="/assets/css/style.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+  <style>
+    .blog-card { position: relative; }
+    .blog-delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(239,68,68,0.1);
+      color: #ef4444;
+      font-size: 0.9rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .blog-card:hover .blog-delete-btn { opacity: 1; }
+    .blog-delete-btn:hover { background: rgba(239,68,68,0.25); }
+    @media (pointer: coarse) {
+      .blog-delete-btn { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
 
@@ -65,5 +93,97 @@
   </footer>
 
   <script src="/assets/js/main.js"></script>
+  <script>
+    // GitHub API helpers + delete post (only used when token exists)
+    (function() {
+      var REPO = 'jkun0603/jkun0603.github.io';
+      var BRANCH = 'main';
+
+      function gh(endpoint, method, body) {
+        var token = localStorage.getItem('gh_blog_token');
+        if (!token) return Promise.reject(new Error('No token'));
+        var opts = {
+          method: method || 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        };
+        if (body) {
+          opts.headers['Content-Type'] = 'application/json';
+          opts.body = JSON.stringify(body);
+        }
+        return fetch('https://api.github.com' + endpoint, opts).then(function(r) {
+          if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || ('HTTP ' + r.status)); });
+          return r.json().then(function(d) { return d; }).catch(function() { return {}; });
+        });
+      }
+
+      function utf8ToBase64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+      }
+
+      function getSha(path) {
+        return gh('/repos/' + REPO + '/contents/' + path + '?ref=' + BRANCH)
+          .then(function(data) { return data && data.sha ? data.sha : null; })
+          .catch(function() { return null; });
+      }
+
+      function putFile(path, content, message) {
+        return getSha(path).then(function(sha) {
+          var payload = {
+            message: message || 'Update ' + path,
+            content: utf8ToBase64(content),
+            branch: BRANCH,
+          };
+          if (sha) payload.sha = sha;
+          return gh('/repos/' + REPO + '/contents/' + path, 'PUT', payload);
+        });
+      }
+
+      function deleteFile(path, message) {
+        return getSha(path).then(function(sha) {
+          if (!sha) return Promise.resolve();
+          return gh('/repos/' + REPO + '/contents/' + path, 'DELETE', {
+            message: message || 'Delete ' + path,
+            sha: sha,
+            branch: BRANCH,
+          });
+        });
+      }
+
+      window.deleteCmsPost = function(slug, btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳';
+
+        // Step 1: delete the markdown file
+        deleteFile('posts/' + slug + '.md', 'delete: remove post ' + slug)
+          .then(function() {
+            // Step 2: update posts.json
+            return gh('/repos/' + REPO + '/contents/posts/posts.json?ref=' + BRANCH);
+          })
+          .then(function(data) {
+            if (!data || !data.content) throw new Error('无法读取 posts.json');
+            var content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+            var json;
+            try { json = JSON.parse(content); } catch(e) { throw new Error('无法解析 posts.json'); }
+            if (!json.posts) json.posts = [];
+            json.posts = json.posts.filter(function(p) { return p.slug !== slug; });
+            var newContent = JSON.stringify(json, null, 2);
+            return putFile('posts/posts.json', newContent, 'delete: remove ' + slug + ' from index');
+          })
+          .then(function() {
+            // Remove card from DOM
+            var card = btn.closest('.blog-card, article');
+            if (card) card.remove();
+          })
+          .catch(function(err) {
+            alert('删除失败：' + err.message);
+            btn.disabled = false;
+            btn.textContent = '\u{1F5D1}️';
+          });
+      };
+    })();
+  </script>
 </body>
 </html>
