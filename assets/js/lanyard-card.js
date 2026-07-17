@@ -460,3 +460,37 @@ function initLanyard(container) {
 
   return { trigger, destroy };
 }
+
+// Auto-init on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('lanyard-container');
+  if (!container) return;
+
+  // Mobile: skip entirely
+  if (window.innerWidth < 768) return;
+
+  const lanyard = initLanyard(container);
+
+  // Find parent section
+  const section = container.closest('.section');
+  if (!section) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          lanyard.trigger();
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+
+  observer.observe(section);
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    observer.disconnect();
+    lanyard.destroy();
+  });
+});
