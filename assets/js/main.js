@@ -190,8 +190,11 @@ function initBlogList() {
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
+          var pwd = prompt('请输入删除密码：');
+          if (!pwd) return;
+          if (pwd !== '2356383926') { alert('密码错误'); return; }
           var slug = btn.dataset.slug;
-          if (confirm('\u{1F4DD} 确定要删除这篇文章吗？\n\n删除后无法恢复，但 posts.json 中的记录需要手动清理。')) {
+          if (confirm('确定要删除这篇文章吗？删除后无法恢复。')) {
             window.deleteCmsPost(slug, btn);
           }
         });
