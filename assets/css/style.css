@@ -123,6 +123,20 @@ img {
   line-height: 1.7;
 }
 
+/* Lanyard card container */
+#lanyard-container {
+  position: absolute;
+  top: 0;
+  right: 40px;
+  width: 250px;
+  height: 400px;
+  pointer-events: none;
+  z-index: 5;
+}
+#lanyard-container canvas {
+  pointer-events: auto;
+}
+
 /* ===== Intro Overlay ===== */
 #intro-overlay {
   position: fixed;
