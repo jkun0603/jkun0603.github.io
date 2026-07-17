@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="响应式设计实战" />
+  <title>响应式设计实战 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li><button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题"><span class="theme-icon">🌙</span></button></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <section class="section">
+    <div class="container">
+      <article class="post-content">
+        <header class="post-header fade-in">
+          <div class="post-meta">📅 2026 年 5 月 28 日 · 📂 技术</div>
+          <h1>响应式设计实战</h1>
+        </header>
+        <article class="fade-in fade-in-d1">
+          <p>从移动优先到桌面端，响应式设计是现代 Web 开发的必备技能。</p>
+          <h2>移动优先策略</h2>
+          <p>先写移动端样式，再用 <code>min-width</code> 媒体查询逐步增强。这样可以保证基础体验在所有设备上一致。</p>
+          <pre><code>/* 基础样式：移动端 */
+.grid { display: flex; flex-direction: column; gap: 16px; }
+
+/* 平板 */
+@media (min-width: 768px) {
+  .grid { display: grid; grid-template-columns: 1fr 1fr; }
+}
+
+/* 桌面 */
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: 1fr 1fr 1fr; }
+}</code></pre>
+          <h2>相对单位</h2>
+          <p>使用 rem、em、vh、vw 等相对单位代替 px，让布局自适应屏幕尺寸。</p>
+          <h2>图片响应式</h2>
+          <p>使用 <code>max-width: 100%</code> 和 <code>picture</code> 元素为不同屏幕提供合适尺寸的图片。</p>
+        </article>
+        <nav class="post-nav fade-in">
+          <a href="/blog/js-tips.html">← 上一篇</a>
+          <a href="/blog.html">返回博客列表</a>
+        </nav>
+      </article>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

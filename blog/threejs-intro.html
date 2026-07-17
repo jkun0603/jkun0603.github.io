@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Three.js 入门笔记" />
+  <title>Three.js 入门笔记 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li><button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题"><span class="theme-icon">🌙</span></button></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <section class="section">
+    <div class="container">
+      <article class="post-content">
+        <header class="post-header fade-in">
+          <div class="post-meta">📅 2026 年 5 月 10 日 · 📂 技术</div>
+          <h1>Three.js 入门笔记</h1>
+        </header>
+        <article class="fade-in fade-in-d1">
+          <p>WebGL 与 Three.js 的基础概念，以及如何创建第一个 3D 场景。</p>
+          <h2>什么是 Three.js？</h2>
+          <p>Three.js 是一个基于 WebGL 的 JavaScript 3D 库，封装了底层图形 API，让开发者能用更简洁的代码创建 3D 场景。</p>
+          <h2>核心概念</h2>
+          <ul>
+            <li><strong>Scene（场景）</strong> — 所有物体的容器</li>
+            <li><strong>Camera（相机）</strong> — 决定观察角度，常用 PerspectiveCamera 和 OrthographicCamera</li>
+            <li><strong>Renderer（渲染器）</strong> — 将场景绘制到画布上</li>
+            <li><strong>Mesh（网格）</strong> — 几何体 + 材质的组合</li>
+          </ul>
+          <pre><code>const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, W/H, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+
+const geo = new THREE.BoxGeometry(1, 1, 1);
+const mat = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+const mesh = new THREE.Mesh(geo, mat);
+scene.add(mesh);
+
+function animate() {
+  mesh.rotation.x += 0.01;
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}</code></pre>
+          <h2>学习资源</h2>
+          <p>Three.js 官方文档、Three.js Journey 课程，以及大量 CodePen 示例都是很好的学习资源。</p>
+        </article>
+        <nav class="post-nav fade-in">
+          <a href="/blog/responsive-design.html">← 上一篇</a>
+          <a href="/blog.html">返回博客列表</a>
+        </nav>
+      </article>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

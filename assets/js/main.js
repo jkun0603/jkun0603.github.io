@@ -127,21 +127,47 @@ function initBlogList() {
       emoji: '📝',
       link: '/blog/mid-year-review.html',
     },
+    {
+      title: 'JavaScript 实用技巧',
+      date: '2026-06-15',
+      summary: '日常开发中积累的一些 JavaScript 实用技巧和最佳实践。',
+      tags: ['技术', 'JS'],
+      emoji: '⚡',
+      link: '/blog/js-tips.html',
+    },
+    {
+      title: '响应式设计实战',
+      date: '2026-05-28',
+      summary: '从移动优先到桌面端，系统学习响应式设计的方法与技巧。',
+      tags: ['技术', 'CSS'],
+      emoji: '📱',
+      link: '/blog/responsive-design.html',
+    },
+    {
+      title: 'Three.js 入门笔记',
+      date: '2026-05-10',
+      summary: 'WebGL 与 Three.js 的基础概念，以及如何创建第一个 3D 场景。',
+      tags: ['技术', 'WebGL'],
+      emoji: '🌍',
+      link: '/blog/threejs-intro.html',
+    },
   ];
 
   posts.forEach((post, i) => {
     const card = document.createElement('article');
     card.className = `blog-card fade-in fade-in-d${(i % 4) + 1}`;
     card.innerHTML = `
-      <div class="blog-card-image">${post.emoji}</div>
-      <div class="blog-card-body">
-        <div class="blog-card-meta">${post.date}</div>
-        <h3><a href="${post.link}">${post.title}</a></h3>
-        <p>${post.summary}</p>
-        <div class="blog-card-tags">
-          ${post.tags.map((t) => `<span class="blog-tag">${t}</span>`).join('')}
+      <a href="${post.link}" class="card-link">
+        <div class="blog-card-image">${post.emoji}</div>
+        <div class="blog-card-body">
+          <div class="blog-card-meta">${post.date}</div>
+          <h3>${post.title}</h3>
+          <p>${post.summary}</p>
+          <div class="blog-card-tags">
+            ${post.tags.map((t) => `<span class="blog-tag">${t}</span>`).join('')}
+          </div>
         </div>
-      </div>
+      </a>
     `;
     grid.appendChild(card);
   });
@@ -161,21 +187,42 @@ function initProjects() {
       summary: '使用纯 HTML/CSS/JS 构建的响应式个人品牌站，支持深色模式与动画交互。',
       tags: ['HTML', 'CSS', 'JavaScript'],
       emoji: '🌐',
-      links: [{ label: '在线预览', url: '#' }],
+      link: '/',
     },
     {
       title: '待添加项目',
       summary: '这里是你的下一个精彩项目，准备好展示给世界吧。',
       tags: ['待定'],
       emoji: '💡',
-      links: [],
+      link: '#',
     },
     {
       title: '待添加项目',
       summary: '这里是你的下一个精彩项目，准备好展示给世界吧。',
       tags: ['待定'],
       emoji: '✨',
-      links: [],
+      link: '#',
+    },
+    {
+      title: '待添加项目',
+      summary: '更多精彩项目即将到来，敬请期待。',
+      tags: ['待定'],
+      emoji: '🚧',
+      link: '#',
+    },
+    {
+      title: '待添加项目',
+      summary: '更多精彩项目即将到来，敬请期待。',
+      tags: ['待定'],
+      emoji: '🌟',
+      link: '#',
+    },
+    {
+      title: '待添加项目',
+      summary: '更多精彩项目即将到来，敬请期待。',
+      tags: ['待定'],
+      emoji: '🎯',
+      link: '#',
     },
   ];
 
@@ -183,17 +230,16 @@ function initProjects() {
     const card = document.createElement('div');
     card.className = `project-card fade-in fade-in-d${(i % 4) + 1}`;
     card.innerHTML = `
-      <div class="project-card-image">${p.emoji}</div>
-      <div class="project-card-body">
-        <h3>${p.title}</h3>
-        <p>${p.summary}</p>
-        <div class="project-tags">
-          ${p.tags.map((t) => `<span class="project-tag">${t}</span>`).join('')}
+      <a href="${p.link}" class="card-link">
+        <div class="project-card-image">${p.emoji}</div>
+        <div class="project-card-body">
+          <h3>${p.title}</h3>
+          <p>${p.summary}</p>
+          <div class="project-tags">
+            ${p.tags.map((t) => `<span class="project-tag">${t}</span>`).join('')}
+          </div>
         </div>
-        <div class="project-links">
-          ${p.links.map((l) => `<a href="${l.url}" target="_blank">${l.label} →</a>`).join('')}
-        </div>
-      </div>
+      </a>
     `;
     grid.appendChild(card);
   });
