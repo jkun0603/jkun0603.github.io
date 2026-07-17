@@ -180,26 +180,9 @@ function initBlogList() {
             '</div>' +
           '</div>' +
         '</a>' +
-        (deletable ? '<button class="blog-delete-btn" data-slug="' + post.slug + '" title="删除文章">\u{1F5D1}️</button>' : '');
+        (deletable ? '<button class="blog-delete-btn" data-slug="' + post.slug + '" onclick="deleteBlogPost(this)" title="删除文章">\u{1F5D1}️</button>' : '');
       grid.appendChild(card);
     });
-
-    // Wire up delete buttons
-    if (hasToken && typeof window.deleteCmsPost === 'function') {
-      grid.querySelectorAll('.blog-delete-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          var pwd = prompt('请输入删除密码：');
-          if (!pwd) return;
-          if (pwd !== '2356383926') { alert('密码错误'); return; }
-          var slug = btn.dataset.slug;
-          if (confirm('确定要删除这篇文章吗？删除后无法恢复。')) {
-            window.deleteCmsPost(slug, btn);
-          }
-        });
-      });
-    }
 
     initScrollAnimations();
   }
@@ -825,6 +808,74 @@ function initTiltedCards() {
       card.style.transform = '';
     });
   });
+}
+
+/* ===== Blog post delete (GitHub API) ===== */
+function deleteBlogPost(btn) {
+  var pwd = prompt('\u{1F511} 请输入删除密码：');
+  if (!pwd) return;
+  if (pwd !== '2356383926') { alert('\u{1F6AB} 密码错误'); return; }
+  var slug = btn.dataset.slug;
+  if (!confirm('\u{1F4DD} 确定要永久删除这篇文章吗？')) return;
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
+  var REPO = 'jkun0603/jkun0603.github.io';
+  var BRANCH = 'main';
+
+  function gh(endpoint, method, body) {
+    var token = localStorage.getItem('gh_blog_token');
+    if (!token) return Promise.reject(new Error('No token'));
+    var opts = {
+      method: method || 'GET',
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' },
+    };
+    if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    return fetch('https://api.github.com' + endpoint, opts).then(function(r) {
+      if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || ('HTTP ' + r.status)); });
+      return r.json().then(function(d) { return d; }).catch(function() { return {}; });
+    });
+  }
+  function utf8ToBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function getSha(path) {
+    return gh('/repos/' + REPO + '/contents/' + path + '?ref=' + BRANCH)
+      .then(function(d) { return d && d.sha ? d.sha : null; }).catch(function() { return null; });
+  }
+  function putFile(path, content, message) {
+    return getSha(path).then(function(sha) {
+      var payload = { message: message || 'Update ' + path, content: utf8ToBase64(content), branch: BRANCH };
+      if (sha) payload.sha = sha;
+      return gh('/repos/' + REPO + '/contents/' + path, 'PUT', payload);
+    });
+  }
+  function deleteFile(path, message) {
+    return getSha(path).then(function(sha) {
+      if (!sha) return Promise.resolve();
+      return gh('/repos/' + REPO + '/contents/' + path, 'DELETE', { message: message || 'Delete ' + path, sha: sha, branch: BRANCH });
+    });
+  }
+
+  deleteFile('posts/' + slug + '.md', 'delete: remove post ' + slug)
+    .then(function() { return gh('/repos/' + REPO + '/contents/posts/posts.json?ref=' + BRANCH); })
+    .then(function(data) {
+      if (!data || !data.content) throw new Error('\u{1F4C4} 无法读取 posts.json');
+      var raw = atob(data.content.replace(/\n/g, ''));
+      var content = decodeURIComponent(escape(raw));
+      var json = JSON.parse(content);
+      if (!json.posts) json.posts = [];
+      json.posts = json.posts.filter(function(p) { return p.slug !== slug; });
+      return putFile('posts/posts.json', JSON.stringify(json, null, 2), 'delete: remove ' + slug + ' from index');
+    })
+    .then(function() {
+      var card = btn.closest('.blog-card, article');
+      if (card) card.remove();
+    })
+    .catch(function(err) {
+      console.error('Delete failed:', err);
+      btn.disabled = false;
+      btn.textContent = '\u{1F5D1}';
+      alert('\u{274C} 删除失败：' + err.message + '\n\n检查 GitHub Token 是否有 Contents 读写权限。');
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
