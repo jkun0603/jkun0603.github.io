@@ -1,8 +1,8 @@
 ---
-title: "我真的受不了"
+title: "啥呀"
 slug: post
 date: 2026-07-17
 emoji: 📝
 ---
 
-啊我打完
+我没看懂
