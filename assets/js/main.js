@@ -822,60 +822,64 @@ function deleteBlogPost(btn) {
 
   var REPO = 'jkun0603/jkun0603.github.io';
   var BRANCH = 'main';
+  var token = localStorage.getItem('gh_blog_token');
+  if (!token) { alert('\u{274C} 未找到 GitHub Token，请先访问 write.html 配置'); btn.disabled = false; btn.textContent = '\u{1F5D1}'; return; }
 
   function gh(endpoint, method, body) {
-    var token = localStorage.getItem('gh_blog_token');
-    if (!token) return Promise.reject(new Error('No token'));
     var opts = {
       method: method || 'GET',
       headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' },
     };
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
     return fetch('https://api.github.com' + endpoint, opts).then(function(r) {
-      if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || ('HTTP ' + r.status)); });
-      return r.json().then(function(d) { return d; }).catch(function() { return {}; });
+      if (!r.ok) return r.json().then(function(e) { throw new Error((e.message || '') + ' (HTTP ' + r.status + ')'); });
+      return r.json().catch(function() { return {}; });
     });
   }
   function utf8ToBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
   function getSha(path) {
     return gh('/repos/' + REPO + '/contents/' + path + '?ref=' + BRANCH)
-      .then(function(d) { return d && d.sha ? d.sha : null; }).catch(function() { return null; });
-  }
-  function putFile(path, content, message) {
-    return getSha(path).then(function(sha) {
-      var payload = { message: message || 'Update ' + path, content: utf8ToBase64(content), branch: BRANCH };
-      if (sha) payload.sha = sha;
-      return gh('/repos/' + REPO + '/contents/' + path, 'PUT', payload);
-    });
-  }
-  function deleteFile(path, message) {
-    return getSha(path).then(function(sha) {
-      if (!sha) return Promise.resolve();
-      return gh('/repos/' + REPO + '/contents/' + path, 'DELETE', { message: message || 'Delete ' + path, sha: sha, branch: BRANCH });
-    });
+      .then(function(d) { if (!d || !d.sha) throw new Error('File not found or no SHA'); return d.sha; });
   }
 
-  deleteFile('posts/' + slug + '.md', 'delete: remove post ' + slug)
-    .then(function() { return gh('/repos/' + REPO + '/contents/posts/posts.json?ref=' + BRANCH); })
-    .then(function(data) {
-      if (!data || !data.content) throw new Error('\u{1F4C4} 无法读取 posts.json');
-      var raw = atob(data.content.replace(/\n/g, ''));
-      var content = decodeURIComponent(escape(raw));
-      var json = JSON.parse(content);
-      if (!json.posts) json.posts = [];
-      json.posts = json.posts.filter(function(p) { return p.slug !== slug; });
-      return putFile('posts/posts.json', JSON.stringify(json, null, 2), 'delete: remove ' + slug + ' from index');
-    })
-    .then(function() {
-      var card = btn.closest('.blog-card, article');
-      if (card) card.remove();
-    })
-    .catch(function(err) {
-      console.error('Delete failed:', err);
-      btn.disabled = false;
-      btn.textContent = '\u{1F5D1}';
-      alert('\u{274C} 删除失败：' + err.message + '\n\n检查 GitHub Token 是否有 Contents 读写权限。');
+  var mdPath = 'posts/' + slug + '.md';
+  var jsonPath = 'posts/posts.json';
+
+  // Step 1: delete the markdown file (if exists)
+  getSha(mdPath).then(function(sha) {
+    return gh('/repos/' + REPO + '/contents/' + mdPath, 'DELETE', {
+      message: 'delete: remove post ' + slug, sha: sha, branch: BRANCH
     });
+  }).catch(function(err) {
+    if (err.message && err.message.includes('Not Found')) {
+      return; // file already gone, that's fine
+    }
+    throw err; // real error, propagate
+  }).then(function() {
+    // Step 2: fetch posts.json
+    return gh('/repos/' + REPO + '/contents/' + jsonPath + '?ref=' + BRANCH);
+  }).then(function(data) {
+    if (!data || !data.content) throw new Error('\u{1F4C4} 无法读取 posts.json');
+    var raw = atob(data.content.replace(/\n/g, ''));
+    var content = decodeURIComponent(escape(raw));
+    var json = JSON.parse(content);
+    if (!json.posts) json.posts = [];
+    json.posts = json.posts.filter(function(p) { return p.slug !== slug; });
+    return gh('/repos/' + REPO + '/contents/' + jsonPath, 'PUT', {
+      message: 'delete: remove ' + slug + ' from index',
+      content: utf8ToBase64(JSON.stringify(json, null, 2)),
+      sha: data.sha,
+      branch: BRANCH,
+    });
+  }).then(function() {
+    var card = btn.closest('.blog-card, article');
+    if (card) card.remove();
+  }).catch(function(err) {
+    console.error('Delete failed:', err);
+    btn.disabled = false;
+    btn.textContent = '\u{1F5D1}';
+    alert('\u{274C} 删除失败：' + err.message + '\n\n可能原因：\n1. Token 过期或权限不足\n2. GitHub API 限流\n3. 文件已被修改\n\n按 F12 查看控制台错误详情。');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
