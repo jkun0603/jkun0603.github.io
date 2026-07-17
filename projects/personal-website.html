@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="个人品牌网站 - 项目详情" />
+  <title>个人品牌网站 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Project Content -->
+  <section class="section">
+    <div class="container">
+      <article class="post-content">
+        <header class="post-header fade-in">
+          <div class="post-meta">🌐 2026 年 7 月 · 全栈项目</div>
+          <h1>个人品牌网站</h1>
+        </header>
+
+        <div class="project-cover fade-in fade-in-d1" style="text-align:center;font-size:4rem;padding:40px 0;">
+          🌐
+        </div>
+
+        <article class="fade-in fade-in-d1">
+          <h2>项目概述</h2>
+          <p>
+            这是一个完全由原生 HTML、CSS 和 JavaScript 构建的响应式个人品牌网站。
+            没有使用任何前端框架或构建工具，追求极致的加载速度和可控性。
+          </p>
+          <p>
+            网站集成了作品集展示、博客系统、联系表单等功能模块，同时包含了丰富的动效交互，
+            如 Three.js 3D 场景、物理模拟粒子效果、滚动动画等。
+          </p>
+
+          <h2>核心功能</h2>
+          <ul>
+            <li><strong>响应式设计</strong> — 适配移动端、平板和桌面端</li>
+            <li><strong>深色/浅色主题</strong> — 支持系统偏好检测和手动切换</li>
+            <li><strong>3D 动效</strong> — 使用 Three.js 实现 Lanyard 学生卡交互效果</li>
+            <li><strong>物理模拟</strong> — Matter.js 驱动的标签下落与拖拽效果</li>
+            <li><strong>滚动动画</strong> — Intersection Observer 驱动的渐入动画</li>
+            <li><strong>开场屏</strong> — 带变宽字效和滚动条的车轮式导航</li>
+            <li><strong>联系表单</strong> — 带交互反馈的响应式表单</li>
+          </ul>
+
+          <h2>技术栈</h2>
+          <div class="project-tags" style="margin-bottom:24px;">
+            <span class="project-tag">HTML5</span>
+            <span class="project-tag">CSS3</span>
+            <span class="project-tag">JavaScript</span>
+            <span class="project-tag">Three.js</span>
+            <span class="project-tag">Matter.js</span>
+            <span class="project-tag">响应式设计</span>
+          </div>
+
+          <h2>设计亮点</h2>
+          <h3>开场体验</h3>
+          <p>
+            进入网站时，首先看到的是一个带有变宽字效的开场屏。鼠标在字母间移动时，
+            字重会随距离动态变化，营造出独特的交互感受。左侧的轮盘导航支持滚轮和拖拽操作。
+          </p>
+
+          <h3>Lanyard 学生卡</h3>
+          <p>
+            滚动到"最近项目"区域时，会触发一个带有弹簧物理模拟的学生卡动效。
+            卡片通过 Verlet 积分模拟的绳子连接，用户可以拖拽卡片并释放，
+            绳子会产生真实的弹性和回弹效果。
+          </p>
+
+          <h3>深色模式</h3>
+          <p>
+            通过 CSS 自定义变量实现了完整的深色/浅色主题切换体系。
+            所有颜色在两种主题下都有对应的设计，确保在任何环境下都有良好的阅读体验。
+          </p>
+
+          <h2>项目总结</h2>
+          <p>
+            这个项目展示了如何使用纯前端技术构建一个功能完整、体验流畅的个人品牌网站。
+            通过精心设计的交互细节和视觉风格，打造出了独具个性的在线形象。
+          </p>
+        </article>
+
+        <nav class="post-nav fade-in">
+          <span></span>
+          <a href="/projects.html">← 返回作品集</a>
+        </nav>
+      </article>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
