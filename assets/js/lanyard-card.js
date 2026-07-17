@@ -203,6 +203,7 @@ function createPhysics(anchorX, anchorY) {
     last.prevY = last.y;
     last.x = x;
     last.y = y;
+    last.pinned = true;
   }
 
   return { masses, update, getPoints, reset, setTarget, anchor };
@@ -262,6 +263,10 @@ function initLanyard(container) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
+  // Reusable objects for drag raycasting (GC pressure fix)
+  const _dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  const _dragIntersect = new THREE.Vector3();
+
   // State
   let state = 'HIDDEN'; // HIDDEN | ENTERING | IDLE | DRAGGING | SNAPPING_BACK | EXITING
   let dragging = false;
@@ -272,7 +277,7 @@ function initLanyard(container) {
   // --- Mouse / pointer events ---
   const canvas = renderer.domElement;
 
-  canvas.addEventListener('pointerdown', (e) => {
+  const onPointerDown = (e) => {
     const r = canvas.getBoundingClientRect();
     pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1;
@@ -285,9 +290,10 @@ function initLanyard(container) {
       dragOffset.copy(hit.point).sub(cardMesh.position);
       canvas.style.cursor = 'grabbing';
     }
-  });
+  };
+  canvas.addEventListener('pointerdown', onPointerDown);
 
-  canvas.addEventListener('pointermove', (e) => {
+  const onPointerMove = (e) => {
     const r = canvas.getBoundingClientRect();
     const mx = ((e.clientX - r.left) / r.width) * 2 - 1;
     const my = -((e.clientY - r.top) / r.height) * 2 + 1;
@@ -303,22 +309,22 @@ function initLanyard(container) {
 
     if (dragging && state === 'DRAGGING') {
       raycaster.setFromCamera(pointer, camera);
-      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-      const intersect = new THREE.Vector3();
-      raycaster.ray.intersectPlane(plane, intersect);
+      raycaster.ray.intersectPlane(_dragPlane, _dragIntersect);
       // Clamp to container area
-      const targetX = Math.max(-W / 2 + 90, Math.min(W / 2 - 90, intersect.x - dragOffset.x));
-      const targetY = Math.max(-H / 2 + 10, Math.min(H / 2 - 10, intersect.y - dragOffset.y));
+      const targetX = Math.max(-W / 2 + 90, Math.min(W / 2 - 90, _dragIntersect.x - dragOffset.x));
+      const targetY = Math.max(-H / 2 + 10, Math.min(H / 2 - 10, _dragIntersect.y - dragOffset.y));
       cardMesh.position.set(targetX, targetY, 0);
       // setTarget pins the last mass; offset by half card height so the card
       // body appears at the cursor, not above it
       phys.setTarget(targetX, targetY + 126);
     }
-  });
+  };
+  canvas.addEventListener('pointermove', onPointerMove);
 
   const onPointerUp = () => {
     if (dragging) {
       dragging = false;
+      phys.masses[2].pinned = false;
       state = 'SNAPPING_BACK';
       canvas.style.cursor = 'default';
     }
@@ -435,7 +441,6 @@ function initLanyard(container) {
     if (state !== 'HIDDEN') return;
     state = 'ENTERING';
     phys.reset();
-    cardMesh.position.set(0, -H / 2 + 10, 0);
     stabilizeTimer = 0;
     idleTimer = 0;
     clock.start();
@@ -444,6 +449,8 @@ function initLanyard(container) {
 
   function destroy() {
     window.removeEventListener('pointerup', onPointerUp);
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('pointermove', onPointerMove);
     if (animId) {
       cancelAnimationFrame(animId);
       animId = null;
@@ -454,11 +461,21 @@ function initLanyard(container) {
     }
   }
 
+  function skipToExit() {
+    if (state !== 'HIDDEN') {
+      state = 'EXITING';
+      idleTimer = 0;
+      dragging = false;
+      canvas.style.cursor = 'default';
+      if (phys.masses[2]) phys.masses[2].pinned = false;
+    }
+  }
+
   // Start animation loop immediately (cheap when HIDDEN, only renders clear)
   clock.start();
   animate();
 
-  return { trigger, destroy };
+  return { trigger, destroy, skipToExit };
 }
 
 // Auto-init on DOMContentLoaded
@@ -480,6 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           lanyard.trigger();
+        } else {
+          lanyard.skipToExit();
         }
       });
     },
