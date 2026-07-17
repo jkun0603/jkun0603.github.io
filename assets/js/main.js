@@ -187,8 +187,11 @@ function initBlogList() {
     initScrollAnimations();
   }
 
-  // Try loading from JSON index (cache-bust for GitHub Pages CDN)
-  fetch('/posts/posts.json?t=' + Date.now(), { cache: 'no-cache' })
+  // Try loading from JSON index (from raw GitHub, avoids Pages CDN cache delay)
+  var jsonUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? '/posts/posts.json'
+    : 'https://raw.githubusercontent.com/jkun0603/jkun0603.github.io/main/posts/posts.json';
+  fetch(jsonUrl, { cache: 'no-cache' })
     .then(function(r) {
       if (!r.ok) throw new Error('Failed to load');
       return r.json();

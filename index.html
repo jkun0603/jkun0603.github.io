@@ -201,7 +201,10 @@
         { emoji: '⚡', title: 'JavaScript 实用技巧', date: '2026-06-15', summary: '日常开发中积累的 JS 技巧和最佳实践。', tags: ['技术'], link: '/blog/js-tips.html' },
       ];
 
-      fetch('/posts/posts.json?t=' + Date.now(), { cache: 'no-cache' })
+      var jsonUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? '/posts/posts.json'
+        : 'https://raw.githubusercontent.com/jkun0603/jkun0603.github.io/main/posts/posts.json';
+      fetch(jsonUrl, { cache: 'no-cache' })
         .then(function(r) {
           if (!r.ok) throw new Error('Failed');
           return r.json();
