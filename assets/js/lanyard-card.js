@@ -132,9 +132,9 @@ function createPhysics(anchorX, anchorY) {
   for (let i = 0; i < 3; i++) {
     masses.push({
       x: anchorX,
-      y: anchorY + segLen * (i + 1) * 0.5,
+      y: anchorY,
       prevX: anchorX,
-      prevY: anchorY + segLen * (i + 1) * 0.5,
+      prevY: anchor.y,
       pinned: false
     });
   }
@@ -151,7 +151,7 @@ function createPhysics(anchorX, anchorY) {
       m.prevX = m.x;
       m.prevY = m.y;
       m.x += vx;
-      m.y += vy + gravity * dt * dt;
+      m.y += vy - gravity * dt * dt; // Gravity pulls down (-y in Three.js)
     }
 
     // Distance constraints (anchor → mass0 → mass1 → mass2)
@@ -190,7 +190,7 @@ function createPhysics(anchorX, anchorY) {
   function reset() {
     for (const m of masses) {
       m.x = anchor.x;
-      m.y = anchor.y + 10;
+      m.y = anchor.y;
       m.prevX = m.x;
       m.prevY = m.y;
     }
@@ -257,7 +257,7 @@ function initLanyard(container) {
   scene.add(rope);
 
   // Physics
-  const phys = createPhysics(0, -H / 2 + 10);
+  const phys = createPhysics(0, H / 2 - 10); // Anchor at top of container
 
   // Raycaster for drag
   const raycaster = new THREE.Raycaster();
