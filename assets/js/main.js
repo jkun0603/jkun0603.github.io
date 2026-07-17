@@ -572,7 +572,7 @@ function initIntroWheel() {
   startLoop();
 }
 
-/* ===== Falling Tags (Matter.js physics) ===== */
+/* ===== Falling Tags (Matter.js physics) ===== 下降标签*/
 function initFallingTags() {
   const container = document.getElementById('heroTags');
   if (!container || container._tagsInited) return;
@@ -581,7 +581,7 @@ function initFallingTags() {
   const tags = [
     '前端开发', 'React', 'TypeScript', 'JavaScript', 'CSS3',
     'HTML5', 'Vue.js', 'Node.js', 'UI/UX', '响应式设计',
-    'WebGL', '动画', 'Git', 'Figma', '性能优化'
+    'WebGL', '动画', 'Git', 'Figma', '性能优化','KUN','🕶'
   ];
 
   const { Engine, Render, World, Bodies, Runner, Body, Query } = Matter;
