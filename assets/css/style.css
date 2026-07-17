@@ -768,6 +768,15 @@ img {
   line-height: 1.7;
 }
 
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.card-link:hover {
+  color: inherit;
+}
+
 .project-tags {
   display: flex;
   flex-wrap: wrap;

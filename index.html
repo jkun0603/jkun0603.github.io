@@ -142,19 +142,21 @@
       const fp = document.getElementById('featuredProjects');
       if (fp) {
         const items = [
-          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'] },
-          { emoji: '💡', title: '待添加项目', summary: '下一个精彩项目，准备好展示给世界。', tags: ['待定'] },
+          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'], link: '/' },
+          { emoji: '💡', title: '待添加项目', summary: '下一个精彩项目，准备好展示给世界。', tags: ['待定'], link: '/projects.html' },
         ];
         items.forEach((p, i) => {
           const div = document.createElement('div');
           div.className = `project-card fade-in fade-in-d${i+2}`;
           div.innerHTML = `
-            <div class="project-card-image">${p.emoji}</div>
-            <div class="project-card-body">
-              <h3>${p.title}</h3>
-              <p>${p.summary}</p>
-              <div class="project-tags">${p.tags.map(t => `<span class="project-tag">${t}</span>`).join('')}</div>
-            </div>`;
+            <a href="${p.link}" class="card-link">
+              <div class="project-card-image">${p.emoji}</div>
+              <div class="project-card-body">
+                <h3>${p.title}</h3>
+                <p>${p.summary}</p>
+                <div class="project-tags">${p.tags.map(t => `<span class="project-tag">${t}</span>`).join('')}</div>
+              </div>
+            </a>`;
           fp.appendChild(div);
         });
       }
@@ -169,13 +171,15 @@
           const div = document.createElement('div');
           div.className = `blog-card fade-in fade-in-d${i+2}`;
           div.innerHTML = `
-            <div class="blog-card-image">${p.emoji}</div>
-            <div class="blog-card-body">
-              <div class="blog-card-meta">${p.date}</div>
-              <h3><a href="${p.link}">${p.title}</a></h3>
-              <p>${p.summary}</p>
-              <div class="blog-card-tags">${p.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}</div>
-            </div>`;
+            <a href="${p.link}" class="card-link">
+              <div class="blog-card-image">${p.emoji}</div>
+              <div class="blog-card-body">
+                <div class="blog-card-meta">${p.date}</div>
+                <h3>${p.title}</h3>
+                <p>${p.summary}</p>
+                <div class="blog-card-tags">${p.tags.map(t => `<span class="blog-tag">${t}</span>`).join('')}</div>
+              </div>
+            </a>`;
           fposts.appendChild(div);
         });
         initScrollAnimations();
