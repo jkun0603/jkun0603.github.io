@@ -121,3 +121,89 @@ function createCardTexture() {
   texture.needsUpdate = true;
   return texture;
 }
+
+function createPhysics(anchorX, anchorY) {
+  // Anchor (fixed point) at the top
+  const anchor = { x: anchorX, y: anchorY, pinned: true, prevX: anchorX, prevY: anchorY };
+
+  // 3 movable masses along the rope
+  const segLen = 55; // px per segment
+  const masses = [];
+  for (let i = 0; i < 3; i++) {
+    masses.push({
+      x: anchorX,
+      y: anchorY + segLen * (i + 1) * 0.5,
+      prevX: anchorX,
+      prevY: anchorY + segLen * (i + 1) * 0.5,
+      pinned: false
+    });
+  }
+
+  function update(dt) {
+    const gravity = 800; // px/s²
+    const iterations = 8;
+
+    // Verlet integration
+    for (const m of masses) {
+      if (m.pinned) continue;
+      const vx = m.x - m.prevX;
+      const vy = m.y - m.prevY;
+      m.prevX = m.x;
+      m.prevY = m.y;
+      m.x += vx;
+      m.y += vy + gravity * dt * dt;
+    }
+
+    // Distance constraints (anchor → mass0 → mass1 → mass2)
+    const constraints = [
+      { a: anchor, b: masses[0], len: segLen },
+      { a: masses[0], b: masses[1], len: segLen },
+      { a: masses[1], b: masses[2], len: segLen },
+    ];
+
+    for (let iter = 0; iter < iterations; iter++) {
+      for (const c of constraints) {
+        const dx = c.b.x - c.a.x;
+        const dy = c.b.y - c.a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 0.001) continue;
+        const diff = (c.len - dist) / dist;
+        const ox = dx * diff * 0.5;
+        const oy = dy * diff * 0.5;
+        if (!c.a.pinned) { c.a.x -= ox; c.a.y -= oy; }
+        if (!c.b.pinned) { c.b.x += ox; c.b.y += oy; }
+      }
+    }
+  }
+
+  // Get rope points (for rendering) including anchor
+  function getPoints() {
+    return [
+      { x: anchor.x, y: anchor.y },
+      { x: masses[0].x, y: masses[0].y },
+      { x: masses[1].x, y: masses[1].y },
+      { x: masses[2].x, y: masses[2].y },
+    ];
+  }
+
+  // Reset all masses to anchor position
+  function reset() {
+    for (const m of masses) {
+      m.x = anchor.x;
+      m.y = anchor.y + 10;
+      m.prevX = m.x;
+      m.prevY = m.y;
+    }
+  }
+
+  // Set target for last mass (during drag)
+  function setTarget(x, y) {
+    const last = masses[2];
+    last.prevX = last.x;
+    last.prevY = last.y;
+    last.x = x;
+    last.y = y;
+  }
+
+  return { masses, update, getPoints, reset, setTarget, anchor };
+}
