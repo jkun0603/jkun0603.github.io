@@ -247,6 +247,7 @@ function initLanyard(container) {
     cardMesh.visible = !hideAll;
     for (const s of ropeSpheres) s.visible = !hideAll;
     if (hideAll) {
+      canvas.style.pointerEvents = 'none';
       renderer.render(scene, camera);
       return;
     }
