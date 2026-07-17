@@ -207,3 +207,254 @@ function createPhysics(anchorX, anchorY) {
 
   return { masses, update, getPoints, reset, setTarget, anchor };
 }
+
+function initLanyard(container) {
+  const rect = container.getBoundingClientRect();
+  const W = rect.width || 250;
+  const H = rect.height || 400;
+
+  // Scene
+  const scene = new THREE.Scene();
+
+  // OrthographicCamera (1 unit = 1 px, origin at center)
+  const camera = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 0.1, 100);
+  camera.position.z = 10;
+
+  // Renderer — transparent background, premultiplied alpha off for clean compositing
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+  scene.add(ambient);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x8a9e9e, 0.6);
+  scene.add(hemi);
+
+  // Card texture
+  const texture = createCardTexture();
+  const cardGeo = new THREE.PlaneGeometry(180, 252);
+  const cardMat = new THREE.MeshStandardMaterial({
+    map: texture,
+    transparent: true,
+    roughness: 0.4,
+    metalness: 0.05,
+    side: THREE.DoubleSide,
+  });
+  const cardMesh = new THREE.Mesh(cardGeo, cardMat);
+  scene.add(cardMesh);
+
+  // Rope — line through anchor + 3 masses
+  const ropePoints = 4;
+  const ropePositions = new Float32Array(ropePoints * 3);
+  const ropeGeo = new THREE.BufferGeometry();
+  ropeGeo.setAttribute('position', new THREE.BufferAttribute(ropePositions, 3));
+  const ropeMat = new THREE.LineBasicMaterial({ color: 0xF0EDE6, transparent: true, opacity: 0.8 });
+  const rope = new THREE.Line(ropeGeo, ropeMat);
+  scene.add(rope);
+
+  // Physics
+  const phys = createPhysics(0, -H / 2 + 10);
+
+  // Raycaster for drag
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  // State
+  let state = 'HIDDEN'; // HIDDEN | ENTERING | IDLE | DRAGGING | SNAPPING_BACK | EXITING
+  let dragging = false;
+  let dragOffset = new THREE.Vector3();
+  let stabilizeTimer = 0;
+  let idleTimer = 0;
+
+  // --- Mouse / pointer events ---
+  const canvas = renderer.domElement;
+
+  canvas.addEventListener('pointerdown', (e) => {
+    const r = canvas.getBoundingClientRect();
+    pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    const hits = raycaster.intersectObject(cardMesh);
+    if (hits.length > 0 && state === 'IDLE') {
+      dragging = true;
+      state = 'DRAGGING';
+      const hit = hits[0];
+      dragOffset.copy(hit.point).sub(cardMesh.position);
+      canvas.style.cursor = 'grabbing';
+    }
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    const r = canvas.getBoundingClientRect();
+    const mx = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const my = -((e.clientY - r.top) / r.height) * 2 + 1;
+    pointer.x = mx;
+    pointer.y = my;
+
+    // Cursor hover
+    if (state === 'IDLE') {
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObject(cardMesh);
+      canvas.style.cursor = hits.length > 0 ? 'grab' : 'default';
+    }
+
+    if (dragging && state === 'DRAGGING') {
+      raycaster.setFromCamera(pointer, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+      const intersect = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, intersect);
+      // Clamp to container area
+      const targetX = Math.max(-W / 2 + 90, Math.min(W / 2 - 90, intersect.x - dragOffset.x));
+      const targetY = Math.max(-H / 2 + 10, Math.min(H / 2 - 10, intersect.y - dragOffset.y));
+      cardMesh.position.set(targetX, targetY, 0);
+      // setTarget pins the last mass; offset by half card height so the card
+      // body appears at the cursor, not above it
+      phys.setTarget(targetX, targetY + 126);
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    if (dragging) {
+      dragging = false;
+      state = 'SNAPPING_BACK';
+      canvas.style.cursor = 'default';
+    }
+  });
+
+  // --- Animation loop ---
+  let clock = new THREE.Clock();
+  let animId = null;
+
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    const rawDt = clock.getDelta();
+    const dt = Math.min(rawDt, 0.033); // cap at ~30fps
+
+    const isMobile = window.innerWidth < 768;
+    if (isMobile || state === 'HIDDEN') {
+      cardMesh.visible = false;
+      rope.visible = false;
+      renderer.render(scene, camera);
+      return;
+    }
+
+    cardMesh.visible = true;
+    rope.visible = true;
+
+    // Physics update (runs during DRAGGING too — setTarget pins the last mass
+    // while constraints propagate through intermediate masses for natural rope stretch)
+    if (state === 'ENTERING' || state === 'IDLE' || state === 'DRAGGING' || state === 'SNAPPING_BACK') {
+      phys.update(dt);
+    }
+
+    // Update card position from physics (last mass)
+    const pts = phys.getPoints();
+    const last = pts[pts.length - 1];
+    // Card hangs from the top-center, so its position is offset by half height
+    cardMesh.position.x = last.x;
+    cardMesh.position.y = last.y - 126; // half card height
+
+    // Card rotation follows rope angle
+    const prev = pts[pts.length - 2];
+    const ropeAngle = Math.atan2(last.y - prev.y, last.x - prev.x);
+    cardMesh.rotation.z = ropeAngle * 0.5;
+
+    // Update rope geometry
+    const pos = rope.geometry.attributes.position.array;
+    for (let i = 0; i < pts.length; i++) {
+      pos[i * 3] = pts[i].x;
+      pos[i * 3 + 1] = pts[i].y;
+      pos[i * 3 + 2] = 0;
+    }
+    rope.geometry.attributes.position.needsUpdate = true;
+
+    // State transitions
+    switch (state) {
+      case 'ENTERING': {
+        // Check if masses have settled
+        let totalVel = 0;
+        for (const m of phys.masses) {
+          totalVel += Math.abs(m.x - m.prevX) + Math.abs(m.y - m.prevY);
+        }
+        if (totalVel < 1.5) {
+          stabilizeTimer += dt;
+          if (stabilizeTimer > 0.5) {
+            state = 'IDLE';
+            stabilizeTimer = 0;
+          }
+        } else {
+          stabilizeTimer = 0;
+        }
+        break;
+      }
+      case 'IDLE': {
+        idleTimer += dt;
+        if (idleTimer > 4.0) {
+          // Auto-exit after 4s of idling (user didn't interact)
+          state = 'EXITING';
+          idleTimer = 0;
+        }
+        break;
+      }
+      case 'SNAPPING_BACK': {
+        let totalVel = 0;
+        for (const m of phys.masses) {
+          totalVel += Math.abs(m.x - m.prevX) + Math.abs(m.y - m.prevY);
+        }
+        stabilizeTimer += dt;
+        if (totalVel < 1.5 && stabilizeTimer > 0.8) {
+          state = 'EXITING';
+          stabilizeTimer = 0;
+        }
+        break;
+      }
+      case 'EXITING': {
+        // Smoothly move everything upward
+        const speed = 600; // px/s
+        const offset = speed * dt;
+        for (const p of pts) {
+          p.y -= offset;
+        }
+        cardMesh.position.y -= offset;
+        if (cardMesh.position.y < -H / 2 - 200) {
+          state = 'HIDDEN';
+        }
+        break;
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  // --- Public API ---
+  function trigger() {
+    if (state !== 'HIDDEN') return;
+    state = 'ENTERING';
+    phys.reset();
+    cardMesh.position.set(0, -H / 2 + 10, 0);
+    stabilizeTimer = 0;
+    idleTimer = 0;
+    clock.start();
+    if (!animId) animate();
+  }
+
+  function destroy() {
+    if (animId) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+    renderer.dispose();
+    if (container.contains(renderer.domElement)) {
+      container.removeChild(renderer.domElement);
+    }
+  }
+
+  // Start animation loop immediately (cheap when HIDDEN, only renders clear)
+  clock.start();
+  animate();
+
+  return { trigger, destroy };
+}
