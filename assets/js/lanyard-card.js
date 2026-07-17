@@ -271,8 +271,8 @@ function initLanyard(container) {
   let state = 'HIDDEN'; // HIDDEN | ENTERING | IDLE | DRAGGING | SNAPPING_BACK | EXITING
   let dragging = false;
   let dragOffset = new THREE.Vector3();
-  let stabilizeTimer = 0;
-  let idleTimer = 0;
+  let enterTimer = 0;
+  let snapTimer = 0;
 
   // --- Mouse / pointer events ---
   const canvas = renderer.domElement;
@@ -351,18 +351,21 @@ function initLanyard(container) {
     cardMesh.visible = true;
     rope.visible = true;
 
-    // Physics update (runs during DRAGGING too — setTarget pins the last mass
-    // while constraints propagate through intermediate masses for natural rope stretch)
-    if (state === 'ENTERING' || state === 'IDLE' || state === 'DRAGGING' || state === 'SNAPPING_BACK') {
-      phys.update(dt);
+    // Physics with fixed timestep for stable simulation
+    const PHYSICS_DT = 1 / 60;
+    if (state === 'ENTERING' || state === 'IDLE' || state === 'SNAPPING_BACK') {
+      phys.update(PHYSICS_DT);
+    }
+    // During DRAGGING: run physics too so rope follows naturally
+    if (state === 'DRAGGING') {
+      phys.update(PHYSICS_DT);
     }
 
     // Update card position from physics (last mass)
     const pts = phys.getPoints();
     const last = pts[pts.length - 1];
-    // Card hangs from the top-center, so its position is offset by half height
     cardMesh.position.x = last.x;
-    cardMesh.position.y = last.y - 126; // half card height
+    cardMesh.position.y = last.y - 126; // half card height below last mass
 
     // Card rotation follows rope angle
     const prev = pts[pts.length - 2];
@@ -381,40 +384,26 @@ function initLanyard(container) {
     // State transitions
     switch (state) {
       case 'ENTERING': {
-        // Check if masses have settled
-        let totalVel = 0;
-        for (const m of phys.masses) {
-          totalVel += Math.abs(m.x - m.prevX) + Math.abs(m.y - m.prevY);
-        }
-        if (totalVel < 1.5) {
-          stabilizeTimer += dt;
-          if (stabilizeTimer > 0.5) {
-            state = 'IDLE';
-            stabilizeTimer = 0;
-          }
-        } else {
-          stabilizeTimer = 0;
+        enterTimer += dt;
+        if (enterTimer > 1.2) {
+          state = 'IDLE';
+          enterTimer = 0;
         }
         break;
       }
       case 'IDLE': {
-        // No auto-exit — card stays as viewport decoration
+        // No auto-exit — card stays until user drags or scrolls away
         break;
       }
       case 'SNAPPING_BACK': {
-        let totalVel = 0;
-        for (const m of phys.masses) {
-          totalVel += Math.abs(m.x - m.prevX) + Math.abs(m.y - m.prevY);
-        }
-        stabilizeTimer += dt;
-        if (totalVel < 1.5 && stabilizeTimer > 0.8) {
+        snapTimer += dt;
+        if (snapTimer > 1.0) {
           state = 'EXITING';
-          stabilizeTimer = 0;
+          snapTimer = 0;
         }
         break;
       }
       case 'EXITING': {
-        // Smoothly move everything upward
         const speed = 600; // px/s
         const offset = speed * dt;
         for (const p of pts) {
@@ -436,8 +425,8 @@ function initLanyard(container) {
     if (state !== 'HIDDEN') return;
     state = 'ENTERING';
     phys.reset();
-    stabilizeTimer = 0;
-    idleTimer = 0;
+    enterTimer = 0;
+    snapTimer = 0;
     clock.start();
     if (!animId) animate();
   }
@@ -459,7 +448,7 @@ function initLanyard(container) {
   function skipToExit() {
     if (state !== 'HIDDEN') {
       state = 'EXITING';
-      idleTimer = 0;
+      snapTimer = 0;
       dragging = false;
       canvas.style.cursor = 'default';
       if (phys.masses[2]) phys.masses[2].pinned = false;
