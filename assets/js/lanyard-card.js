@@ -482,26 +482,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth < 768) return;
 
   const lanyard = initLanyard(container);
+
+  // Find the "最近项目" section (the first .section that contains #featuredProjects)
+  const section = document.querySelector('#featuredProjects')?.closest('.section');
+  if (!section) return;
+
   let introCleared = false;
 
-  // Trigger on scroll — card drops from top of viewport
-  const onScroll = () => {
-    // Wait for intro overlay to clear
-    if (!introCleared) {
-      const overlay = document.getElementById('intro-overlay');
-      if (overlay && overlay.style.visibility !== 'hidden') return;
-      introCleared = true;
-    }
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        // Don't trigger until intro overlay is gone
+        if (!introCleared) {
+          const overlay = document.getElementById('intro-overlay');
+          if (overlay && overlay.style.visibility !== 'hidden') return;
+          introCleared = true;
+        }
 
-    if (lanyard.isHidden()) {
-      lanyard.trigger();
-    }
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
+        if (entry.isIntersecting) {
+          // Section entered viewport — card drops from top-right
+          lanyard.trigger();
+        } else {
+          // Section left viewport — card exits
+          lanyard.skipToExit();
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  observer.observe(section);
 
   // Clean up on page unload
   window.addEventListener('beforeunload', () => {
-    window.removeEventListener('scroll', onScroll);
+    observer.disconnect();
     lanyard.destroy();
   });
 });
