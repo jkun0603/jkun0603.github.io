@@ -214,77 +214,6 @@ function initBlogList() {
     });
 }
 
-/* ===== Dynamic Projects (for projects page) ===== */
-function initProjects() {
-  const grid = document.getElementById('projectsGrid');
-  if (!grid) return;
-
-  const projects = [
-    {
-      title: '个人品牌网站',
-      summary: '使用纯 HTML/CSS/JS 构建的响应式个人品牌站，支持深色模式与动画交互。',
-      tags: ['HTML', 'CSS', 'JavaScript'],
-      emoji: '🌐',
-      link: '/projects/personal-website.html',
-    },
-    {
-      title: '下一个精彩项目',
-      summary: '灵感正在孵化中，下一个精彩项目即将到来。',
-      tags: ['筹备中'],
-      emoji: '💡',
-      link: '/projects/next-project.html',
-    },
-    {
-      title: '更多项目',
-      summary: '更多精彩项目即将到来，敬请期待。',
-      tags: ['筹备中'],
-      emoji: '✨',
-      link: '/projects/coming-soon.html',
-    },
-    {
-      title: '更多项目',
-      summary: '更多精彩项目即将到来，敬请期待。',
-      tags: ['筹备中'],
-      emoji: '🚧',
-      link: '/projects/coming-soon.html',
-    },
-    {
-      title: '更多项目',
-      summary: '更多精彩项目即将到来，敬请期待。',
-      tags: ['筹备中'],
-      emoji: '🌟',
-      link: '/projects/coming-soon.html',
-    },
-    {
-      title: '更多项目',
-      summary: '更多精彩项目即将到来，敬请期待。',
-      tags: ['筹备中'],
-      emoji: '🎯',
-      link: '/projects/coming-soon.html',
-    },
-  ];
-
-  projects.forEach((p, i) => {
-    const card = document.createElement('div');
-    card.className = `project-card fade-in fade-in-d${(i % 4) + 1}`;
-    card.innerHTML = `
-      <a href="${p.link}" class="card-link">
-        <div class="project-card-image">${p.emoji}</div>
-        <div class="project-card-body">
-          <h3>${p.title}</h3>
-          <p>${p.summary}</p>
-          <div class="project-tags">
-            ${p.tags.map((t) => `<span class="project-tag">${t}</span>`).join('')}
-          </div>
-        </div>
-      </a>
-    `;
-    grid.appendChild(card);
-  });
-
-  initScrollAnimations();
-}
-
 /* ===== Intro Scroll Reveal ===== */
 function initIntroReveal() {
   const overlay = document.getElementById('intro-overlay');
@@ -951,6 +880,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initContactForm();
   initBlogList();
-  initProjects();
   initTiltedCards();
 });

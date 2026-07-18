@@ -10,20 +10,31 @@
       "summary": "纯 HTML/CSS/JS 响应式个人站，支持深色模式。"
     },
     {
-      "title": "下一个精彩项目",
-      "slug": "next-project",
-      "date": "2026-07-01",
-      "tags": ["筹备中"],
-      "emoji": "💡",
-      "summary": "灵感正在孵化中，精彩项目即将到来。"
+      "title": "任务管理工具",
+      "slug": "todo-app",
+      "date": "2026-07-10",
+      "tags": ["React", "TypeScript", "全栈"],
+      "emoji": "✅",
+      "image": "https://picsum.photos/seed/todo-app/600/300",
+      "summary": "一个带拖拽排序和标签分类的任务管理看板。"
     },
     {
-      "title": "更多项目",
-      "slug": "coming-soon",
-      "date": "2026-06-01",
-      "tags": ["筹备中"],
-      "emoji": "🚧",
-      "summary": "持续建设中，敬请期待。"
+      "title": "天气可视化",
+      "slug": "weather-app",
+      "date": "2026-07-05",
+      "tags": ["Vue", "API", "数据可视化"],
+      "emoji": "🌤️",
+      "image": "https://picsum.photos/seed/weather-app/600/300",
+      "summary": "实时天气数据展示，带动态背景和趋势图表。"
+    },
+    {
+      "title": "贪吃蛇小游戏",
+      "slug": "snake-game",
+      "date": "2026-06-20",
+      "tags": ["游戏", "Canvas", "JS"],
+      "emoji": "🐍",
+      "image": "https://picsum.photos/seed/snake-game/600/300",
+      "summary": "纯 Canvas 实现的经典贪吃蛇，含道具系统和排行榜。"
     }
   ]
 }
