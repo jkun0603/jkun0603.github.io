@@ -289,9 +289,13 @@ function initProjects() {
 function initIntroReveal() {
   const overlay = document.getElementById('intro-overlay');
   const spacer = document.querySelector('.intro-spacer');
-  if (!overlay || !spacer) return;
+  const navbar = document.querySelector('.navbar');
+  const hero = document.querySelector('.hero');
+  if (!overlay || !spacer || !hero) return;
 
+  const navHeight = navbar ? navbar.offsetHeight : 60;
   let ticking = false;
+  let _cardTriggered = false;
 
   function update() {
     const scrollY = window.scrollY;
@@ -324,6 +328,22 @@ function initIntroReveal() {
     if (window._fallingTagsStarted && progress < 0.2) {
       const c = document.getElementById('heroTags');
       if (c && c._tagsCleanup) { c._tagsCleanup(); window._fallingTagsStarted = false; }
+    }
+
+    // Trigger lanyard card when hero bottom reaches the navbar
+    if (!_cardTriggered) {
+      const heroRect = hero.getBoundingClientRect();
+      if (heroRect.bottom <= navHeight + 10) {
+        _cardTriggered = true;
+        if (window._lanyardCard && window._lanyardCard.trigger) {
+          window._lanyardCard.trigger();
+        }
+      }
+    }
+
+    // Re-arm card trigger after exit animation completes
+    if (_cardTriggered && window._lanyardCard && window._lanyardCard.isHidden()) {
+      _cardTriggered = false;
     }
 
     ticking = false;

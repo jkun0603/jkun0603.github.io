@@ -416,45 +416,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const lanyard = initLanyard(container);
 
-  // Find the "最近项目" section (the first .section that contains #featuredProjects)
-  const section = document.querySelector('#featuredProjects')?.closest('.section');
-  if (!section) return;
+  // Expose globally so main.js can trigger/skip from scroll handler
+  window._lanyardCard = lanyard;
 
-  let introCleared = false;
-  let lastScrollY = window.scrollY;
-  let scrollDir = 'down';
+  // Skip/exit when scrolling back up past hero
+  const hero = document.querySelector('.hero');
+  const navbar = document.querySelector('.navbar');
+  const navHeight = navbar ? navbar.offsetHeight : 60;
 
-  window.addEventListener('scroll', () => {
-    const sy = window.scrollY;
-    scrollDir = sy > lastScrollY ? 'down' : 'up';
-    lastScrollY = sy;
-  }, { passive: true });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        // Don't trigger until intro overlay is gone
-        if (!introCleared) {
-          const overlay = document.getElementById('intro-overlay');
-          if (overlay && overlay.style.visibility !== 'hidden') return;
-          introCleared = true;
-        }
-
-        if (entry.isIntersecting) {
-          lanyard.trigger();
-        } else if (scrollDir === 'up') {
-          lanyard.skipToExit();
-        }
-      });
-    },
-    { threshold: 0.95 }
-  );
-
-  observer.observe(section);
+  if (hero) {
+    window.addEventListener('scroll', () => {
+      const heroRect = hero.getBoundingClientRect();
+      // If hero bottom is well below navbar, card should exit
+      if (heroRect.bottom > navHeight + 50 && !lanyard.isHidden()) {
+        lanyard.skipToExit();
+      }
+    }, { passive: true });
+  }
 
   // Clean up on page unload
   window.addEventListener('beforeunload', () => {
-    observer.disconnect();
     lanyard.destroy();
   });
 });
