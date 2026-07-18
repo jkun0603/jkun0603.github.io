@@ -1,5 +1,17 @@
 {
   "projects": [
+
+    {
+      "title": "新项目模版",
+      "slug": "project-template",
+      "date": "2026-07-17",
+      "tags": ["例子", "模版", "JS"],
+      "emoji": "🌐",
+      "image": "/assets/images/例子图片.png",
+      "summary": "纯 HTML/CSS/JS 响应式个人站，支持深色模式。"
+     
+    },
+    
     {
       "title": "个人品牌网站",
       "slug": "personal-website",
