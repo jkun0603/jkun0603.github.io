@@ -225,6 +225,7 @@ function initIntroReveal() {
   const navHeight = navbar ? navbar.offsetHeight : 60;
   let ticking = false;
   let _cardTriggered = false;
+  let _cardCooldown = null;
 
   function update() {
     const scrollY = window.scrollY;
@@ -270,9 +271,12 @@ function initIntroReveal() {
       }
     }
 
-    // Re-arm card trigger after exit animation completes
-    if (_cardTriggered && window._lanyardCard && window._lanyardCard.isHidden()) {
-      _cardTriggered = false;
+    // Re-arm card trigger after 15s cooldown
+    if (_cardTriggered && !_cardCooldown && window._lanyardCard && window._lanyardCard.isHidden()) {
+      _cardCooldown = setTimeout(function() {
+        _cardTriggered = false;
+        _cardCooldown = null;
+      }, 15000);
     }
 
     ticking = false;
