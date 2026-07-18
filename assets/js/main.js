@@ -257,7 +257,7 @@ function initIntroReveal() {
     // Dismiss tags when scrolling back up past threshold
     if (window._fallingTagsStarted && progress < 0.2) {
       const c = document.getElementById('heroTags');
-      if (c && c._tagsCleanup) { c._tagsCleanup(); window._fallingTagsStarted = false; }
+      if (c && c._tagsCleanup) { c._tagsCleanup(); }
     }
 
     // Trigger lanyard card when hero bottom reaches the navbar
@@ -276,7 +276,7 @@ function initIntroReveal() {
       _cardCooldown = setTimeout(function() {
         _cardTriggered = false;
         _cardCooldown = null;
-      }, 15000);
+      }, 10000);
     }
 
     ticking = false;
