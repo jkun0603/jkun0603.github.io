@@ -320,6 +320,12 @@ function initIntroReveal() {
       initFallingTags();
     }
 
+    // Dismiss tags when scrolling back up past threshold
+    if (window._fallingTagsStarted && progress < 0.2) {
+      const c = document.getElementById('heroTags');
+      if (c && c._tagsCleanup) { c._tagsCleanup(); window._fallingTagsStarted = false; }
+    }
+
     ticking = false;
   }
 
@@ -717,11 +723,30 @@ function initFallingTags() {
   const pad = 40;
   const wallThick = 60;
   const floorY = areaH * 0.90;
-  World.add(engine.world, [
+  const walls = [
     Bodies.rectangle(areaW / 2, floorY, areaW + 100, wallThick, wallOpts),
     Bodies.rectangle(0, floorY / 2, wallThick, floorY + 100, wallOpts),
     Bodies.rectangle(areaW, floorY / 2, wallThick, floorY + 100, wallOpts),
-  ]);
+  ];
+  World.add(engine.world, walls);
+
+  // Reposition walls when viewport resizes
+  let resizeTimer;
+  const handleResize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const r = hero.getBoundingClientRect();
+      const w = r.width, h = r.height;
+      render.options.width = w;
+      render.options.height = h;
+      render.canvas.width = w;
+      render.canvas.height = h;
+      Body.setPosition(walls[0], { x: w / 2, y: h * 0.90 });
+      Body.setPosition(walls[1], { x: 0, y: h * 0.45 });
+      Body.setPosition(walls[2], { x: w, y: h * 0.45 });
+    }, 150);
+  };
+  window.addEventListener('resize', handleResize);
 
   // Create bodies for each tag, starting just above viewport
   const bodyMap = tags.map((_, i) => {
@@ -790,10 +815,14 @@ function initFallingTags() {
 
   container._tagsCleanup = () => {
     running = false;
+    clearTimeout(resizeTimer);
+    window.removeEventListener('resize', handleResize);
     Runner.stop(runner);
     render.canvas.parentNode?.removeChild(render.canvas);
     World.clear(engine.world);
     Engine.clear(engine);
+    container._tagsInited = false;
+    container._tagsCleanup = null;
   };
 }
 
