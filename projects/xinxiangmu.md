@@ -1,13 +1,26 @@
 ---
-title: "个人品牌网站"
-slug: xinxiangmu
-date: "2026-07-17"
+title: "项目模版"
+slug: personal-website
+date: "2026-07-1"
 tags: ["HTML", "CSS", "JS", "全栈项目"]
 emoji: "🌐"
 summary: "纯 HTML/CSS/JS 响应式个人站，支持深色模式。"
-image: "https://picsum.photos/seed/personal-site/600/300"
+image: "/assets/images/例子图片.png"
 ---
 
+## 在json文件中加入的新项目的slug要和文件名字一致
+● 问题出在文件名和 slug 的对应关系上。
+
+  原理：点击卡片 → projects/view.html?slug=xinxiangmu → 查找 projects/xinxiangmu.md 文件
+
+  但实际的文件是 projects/personal-website.md，名字对不上，所以 404 了。
+
+  你"新项目模版"的 slug 是 xinxiangmu，但对应的 .md 文件名为 personal-website.md。你要怎么处理：
+
+  1. 把 personal-website.md 改名 xinxiangmu.md — "新项目模版"和"个人品牌网站"共用这个文件
+  2. 新建一个 xinxiangmu.md — 两个项目各自独立
+  3. 把 slug 改回去 — 保持文件名和 slug 一致
+  
 ## 项目概述
 
 这是一个完全由原生 HTML、CSS 和 JavaScript 构建的响应式个人品牌网站。没有使用任何前端框架或构建工具，追求极致的加载速度和可控性。

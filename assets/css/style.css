@@ -739,7 +739,7 @@ img {
 }
 
 .project-card-image {
-  height: 180px;
+  height: 220px;
   background: var(--bg-tertiary);
   display: flex;
   align-items: center;
