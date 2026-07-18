@@ -178,10 +178,16 @@
           var tags = p.tags || [];
           var date = p.date || '';
           var summary = p.summary || '';
+          var imageHtml;
+          if (p.image) {
+            imageHtml = '<img src="' + p.image + '" alt="" loading="lazy" />';
+          } else {
+            imageHtml = emoji;
+          }
           var div = document.createElement('div');
           div.className = 'blog-card fade-in fade-in-d' + ((i % 4) + 2);
           div.innerHTML = '<a href="' + link + '" class="card-link">' +
-            '<div class="blog-card-image">' + emoji + '</div>' +
+            '<div class="blog-card-image">' + imageHtml + '</div>' +
             '<div class="blog-card-body">' +
             '<div class="blog-card-meta">' + date + '</div>' +
             '<h3>' + p.title + '</h3>' +

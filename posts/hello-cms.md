@@ -1,6 +1,6 @@
 ---
 title: Hello CMS
-slug: hello-cms
+slug: hello-cms（slug 是文章的链接标识，就是你访问这篇文章时 URL 里用的名字。）
 date: 2026-07-17
 tags:
   - 随笔

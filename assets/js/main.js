@@ -160,17 +160,23 @@ function initBlogList() {
 
     posts.forEach(function(post, i) {
       var link = post.link || (post.slug ? '/blog/view.html?slug=' + post.slug : '#');
-      var emoji = post.emoji || '\u{1F4DD}';
       var tags = post.tags || [];
       var summary = post.summary || '';
       var date = post.date || '';
       var deletable = hasToken && !post.link && post.slug;
 
+      var imageHtml;
+      if (post.image) {
+        imageHtml = '<img src="' + post.image + '" alt="" loading="lazy" />';
+      } else {
+        imageHtml = post.emoji || '\u{1F4DD}';
+      }
+
       var card = document.createElement('article');
       card.className = 'blog-card fade-in fade-in-d' + ((i % 4) + 1);
       card.innerHTML =
         '<a href="' + link + '" class="card-link">' +
-          '<div class="blog-card-image">' + emoji + '</div>' +
+          '<div class="blog-card-image">' + imageHtml + '</div>' +
           '<div class="blog-card-body">' +
             '<div class="blog-card-meta">' + date + '</div>' +
             '<h3>' + post.title + '</h3>' +
