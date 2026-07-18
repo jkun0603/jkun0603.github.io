@@ -1,0 +1,29 @@
+{
+  "projects": [
+    {
+      "title": "个人品牌网站",
+      "slug": "personal-website",
+      "date": "2026-07-17",
+      "tags": ["HTML", "CSS", "JS"],
+      "emoji": "🌐",
+      "image": "https://picsum.photos/seed/personal-site/600/300",
+      "summary": "纯 HTML/CSS/JS 响应式个人站，支持深色模式。"
+    },
+    {
+      "title": "下一个精彩项目",
+      "slug": "next-project",
+      "date": "2026-07-01",
+      "tags": ["筹备中"],
+      "emoji": "💡",
+      "summary": "灵感正在孵化中，精彩项目即将到来。"
+    },
+    {
+      "title": "更多项目",
+      "slug": "coming-soon",
+      "date": "2026-06-01",
+      "tags": ["筹备中"],
+      "emoji": "🚧",
+      "summary": "持续建设中，敬请期待。"
+    }
+  ]
+}

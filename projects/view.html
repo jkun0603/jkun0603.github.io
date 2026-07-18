@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="项目详情" />
+  <title>项目详情 | 个人主页</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" role="navigation">
+    <div class="container">
+      <a href="/" class="nav-logo">✦</a>
+      <ul class="nav-links">
+        <li><a href="/">首页</a></li>
+        <li><a href="/projects.html">作品</a></li>
+        <li><a href="/blog.html">博客</a></li>
+        <li><a href="/about.html">关于</a></li>
+        <li><a href="/contact.html">联系</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Project Content -->
+  <section class="section">
+    <div class="container">
+      <article class="post-content" id="projectContainer">
+        <header class="post-header fade-in" id="projectHeader">
+          <div class="post-meta" id="projectMeta"></div>
+          <h1 id="projectTitle"></h1>
+        </header>
+        <div class="fade-in fade-in-d1" id="projectBody"></div>
+        <nav class="post-nav fade-in">
+          <span></span>
+          <a href="/projects.html">← 返回作品集</a>
+        </nav>
+      </article>
+      <div id="projectLoading" style="text-align:center;padding:80px 20px;color:var(--text-secondary);">
+        <div style="font-size:2rem;margin-bottom:16px;">⏳</div>
+        <p>加载中...</p>
+      </div>
+      <div id="projectError" style="display:none;text-align:center;padding:80px 20px;">
+        <div style="font-size:3rem;margin-bottom:16px;">😕</div>
+        <h2>项目未找到</h2>
+        <p style="color:var(--text-secondary);margin:12px 0 24px;">请检查链接是否正确，或返回作品集。</p>
+        <a href="/projects.html" class="btn btn-secondary">← 返回作品集</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-copy">© 2026 · All rights reserved.</div>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub" target="_blank">GH</a>
+          <a href="#" aria-label="Twitter" target="_blank">TW</a>
+          <a href="#" aria-label="Email" target="_blank">EM</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      if (!slug) {
+        document.getElementById('projectLoading').style.display = 'none';
+        document.getElementById('projectError').style.display = '';
+        return;
+      }
+
+      const url = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? '/projects/' + slug + '.md'
+        : 'https://raw.githubusercontent.com/jkun0603/jkun0603.github.io/main/projects/' + slug + '.md';
+
+      fetch(url)
+        .then(function(r) {
+          if (!r.ok) throw new Error('Not found');
+          return r.text();
+        })
+        .then(function(text) {
+          document.getElementById('projectLoading').style.display = 'none';
+          document.getElementById('projectContainer').style.display = '';
+
+          var body = text;
+          var frontmatter = {};
+          if (text.startsWith('---')) {
+            var end = text.indexOf('---', 3);
+            if (end !== -1) {
+              var fmLines = text.slice(3, end).trim().split('\n');
+              body = text.slice(end + 3).trim();
+              fmLines.forEach(function(line) {
+                var colonIdx = line.indexOf(':');
+                if (colonIdx !== -1) {
+                  var key = line.slice(0, colonIdx).trim();
+                  var val = line.slice(colonIdx + 1).trim();
+                  if ((val.startsWith('"') && val.endsWith('"')) ||
+                      (val.startsWith("'") && val.endsWith("'"))) {
+                    val = val.slice(1, -1);
+                  }
+                  if (val.startsWith('[') && val.endsWith(']')) {
+                    val = val.slice(1, -1).split(',').map(function(s) {
+                      return s.trim().replace(/^["']|["']$/g, '');
+                    });
+                  }
+                  frontmatter[key] = val;
+                }
+              });
+            }
+          }
+
+          var title = frontmatter.title || slug;
+          var date = frontmatter.date || '';
+          var tags = frontmatter.tags || [];
+          var emoji = frontmatter.emoji || '📦';
+
+          document.title = title + ' | 个人主页';
+          document.getElementById('projectTitle').textContent = title;
+
+          var metaStr = '';
+          if (emoji) metaStr += emoji;
+          if (date) metaStr += ' ' + date;
+          if (tags.length) metaStr += ' · ' + (Array.isArray(tags) ? tags.join(', ') : tags);
+          document.getElementById('projectMeta').textContent = metaStr;
+
+          var html = marked.parse(body);
+          document.getElementById('projectBody').innerHTML = html;
+
+          if (typeof initScrollAnimations === 'function') {
+            initScrollAnimations();
+          }
+        })
+        .catch(function() {
+          document.getElementById('projectLoading').style.display = 'none';
+          document.getElementById('projectError').style.display = '';
+        });
+    })();
+  </script>
+</body>
+</html>

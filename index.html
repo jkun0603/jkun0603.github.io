@@ -141,27 +141,47 @@
     document.addEventListener('DOMContentLoaded', () => {
       const fp = document.getElementById('featuredProjects');
       if (fp) {
-        const items = [
-          { emoji: '🌐', title: '个人品牌网站', summary: '纯 HTML/CSS/JS 响应式个人站，支持深色模式。', tags: ['HTML', 'CSS', 'JS'], link: '/projects/personal-website.html', date: '2026-07-17' },
-          { emoji: '💡', title: '下一个精彩项目', summary: '灵感正在孵化中，精彩项目即将到来。', tags: ['筹备中'], link: '/projects/next-project.html', date: '2026-07-01' },
-          { emoji: '🚧', title: '更多项目', summary: '持续建设中，敬请期待。', tags: ['筹备中'], link: '/projects/coming-soon.html', date: '2026-06-01' },
-        ];
-        // Sort by date descending, take up to 6
-        items.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
-        var maxProjects = Math.min(items.length, 4);
-        for (var i = 0; i < maxProjects; i++) {
-          var p = items[i];
-          var div = document.createElement('div');
-          div.className = 'project-card fade-in fade-in-d' + ((i % 4) + 2);
-          div.innerHTML = '<a href="' + p.link + '" class="card-link">' +
-            '<div class="project-card-image">' + p.emoji + '</div>' +
-            '<div class="project-card-body">' +
-            '<h3>' + p.title + '</h3>' +
-            '<p>' + p.summary + '</p>' +
-            '<div class="project-tags">' + p.tags.map(function(t) { return '<span class="project-tag">' + t + '</span>'; }).join('') + '</div>' +
-            '</div></a>';
-          fp.appendChild(div);
+        function renderProjects(projects) {
+          projects.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+          var maxProjects = Math.min(projects.length, 4);
+          for (var i = 0; i < maxProjects; i++) {
+            var p = projects[i];
+            var link = '/projects/view.html?slug=' + p.slug;
+            var emoji = p.emoji || '📦';
+            var tags = p.tags || [];
+            var summary = p.summary || '';
+            var imageHtml = p.image
+              ? '<img src="' + p.image + '" alt="" loading="lazy" />'
+              : emoji;
+            var div = document.createElement('div');
+            div.className = 'project-card fade-in fade-in-d' + ((i % 4) + 2);
+            div.innerHTML = '<a href="' + link + '" class="card-link">' +
+              '<div class="project-card-image">' + imageHtml + '</div>' +
+              '<div class="project-card-body">' +
+              '<h3>' + p.title + '</h3>' +
+              '<p>' + summary + '</p>' +
+              '<div class="project-tags">' + tags.map(function(t) { return '<span class="project-tag">' + t + '</span>'; }).join('') + '</div>' +
+              '</div></a>';
+            fp.appendChild(div);
+          }
+          initScrollAnimations();
+          initTiltedCards();
         }
+
+        var projectsUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? '/projects/projects.json'
+          : 'https://raw.githubusercontent.com/jkun0603/jkun0603.github.io/main/projects/projects.json';
+        fetch(projectsUrl, { cache: 'no-cache' })
+          .then(function(r) {
+            if (!r.ok) throw new Error('Failed');
+            return r.json();
+          })
+          .then(function(data) {
+            if (data && data.projects && data.projects.length) {
+              renderProjects(data.projects);
+            }
+          })
+          .catch(function() {});
       }
 
       const fposts = document.getElementById('featuredPosts');
