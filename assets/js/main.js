@@ -723,10 +723,10 @@ function initFallingTags() {
     Bodies.rectangle(areaW, floorY / 2, wallThick, floorY + 100, wallOpts),
   ]);
 
-  // Create bodies for each tag, starting from above viewport
+  // Create bodies for each tag, starting just above viewport
   const bodyMap = tags.map((_, i) => {
     const x = 80 + Math.random() * (areaW - 160);
-    const y = -40 - Math.random() * 120 - i * 10;
+    const y = -10 - Math.random() * 30 - i * 4;
     const body = Bodies.rectangle(x, y, 100, 32, {
       render: { fillStyle: 'transparent' },
       restitution: 0.5,
